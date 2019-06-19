@@ -1,0 +1,22 @@
+{% extends 'layout.jinja2' %}
+
+
+{% block content %}
+<p>{{ content|safe }}</p>
+
+<p>
+<a href="{{request.route_url('about', pagename='about')}}">Home page</a>
+</p>
+<p>
+<a href="{{ edit_url }}">
+    
+</a>
+</p>
+<p><font size="5">
+    Welcome to the infrared spectra databank <strong></strong><strong> </strong>
+</p>
+<p>
+Please use the navigation pain on the right
+</p>
+<p>Databank is still under development <br></p>
+{% endblock content %}
