@@ -137,8 +137,8 @@ def form(request):
 
         schema = Schema()
         #form = deform.Form(schema, buttons=('submit',))
+        #del appstruct["xyz"]
         
-
         
         
         if 'submit' in request.POST:
@@ -196,10 +196,13 @@ def form(request):
             #print(controls)
             #page.creator = request.user
             #request.dbsession.add(page)
-            
+            obj = request.POST
             try:
                 appstruct = form.validate(controls)
-                
+                one = form.schema.objectify(appstruct, obj)
+                request.dbsession.add(one)
+                request.dbsession.commit()
+                print(one)
                 next_url = request.route_url('view_page', pagename='name')
                 return HTTPFound(location=next_url)# call validate
             except deform.ValidationFailure as e: # catch the exception
@@ -210,7 +213,7 @@ def form(request):
              # re-render the form with an exception
             
             
-            return{'form':appstruct}
+            #return{'form':appstruct}
         else:
             form = form.render()    
             

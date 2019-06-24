@@ -30,6 +30,7 @@ from sqlalchemy import (
     Text,
     ForeignKey,
     String,
+    
 )
 
 from .meta import Base
@@ -191,7 +192,7 @@ class project(Base):
     __tablename__ = 'project'
 
     descriptive_name = Column(String(300))
-    project_ID = Column(INTEGER(11), primary_key=True, unique=True)
+    project_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, default=0, info={'colanderalchemy': {'exclude': True}})
     related_experiments_ID = Column(String(100))
 
 

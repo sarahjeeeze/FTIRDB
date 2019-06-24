@@ -97,7 +97,7 @@ def view_page(request):
 
     def add_link(match):
         word = match.group(1)
-        exists = request.dbsession.query(FTIRModel).filter_by(name=word).all()
+        exists = request.dbsession.query(project).filter_by(project_ID=word).all()
         if exists:
             view_url = request.route_url('view_page', pagename=word)
             return '<a href="%s">%s</a>' % (view_url, escape(word))

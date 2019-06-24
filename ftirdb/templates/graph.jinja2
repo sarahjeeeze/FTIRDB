@@ -23,6 +23,21 @@ Infrared spectra of Biomolecule A
 
 Any other data can be rendered here
 
+</p>
+<p>
+
+<input type="radio" name="one" checked> one graph </p>
+<p>
+<input type="radio" name="two" > overlay other graph
+
+</p>
+
+<form action="" id="animals">
+<input type="radio" id="onegraph" name="animal" value="red" onClick="changeSrc()">one<br>
+<input type="radio" id="twographs" name="animal" value="blue" onClick="changeSrc()">two<br>
+    </form>
+<img src="{{request.static_url('ftirdb:static/fig.png') }}" id="picture" width=600px>
+
 
 
 </textarea>

@@ -39,6 +39,8 @@ def includeme(config):
     config.add_route('view_wiki', '/')
     config.add_route('searchdb','/searchdb')
     config.add_route('form','/form')
+    config.add_route('projectform','/projectform')
+    config.add_route('projectPage','/projectPage/{pagename}',factory=page_factory)
     config.add_route('results','/results/{results}')
     config.add_route('graph','/graph')
     config.add_route('about', '/about')
@@ -80,7 +82,7 @@ class NewPage(object):
 
 def page_factory(request):
     pagename = request.matchdict['pagename']
-    page = request.dbsession.query(FTIRModel).filter_by(name=pagename).first()
+    page = request.dbsession.query(project).filter_by(project_ID=pagename).first()
     if page is None:
         raise HTTPNotFound
     return PageResource(page)
