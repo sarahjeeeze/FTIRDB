@@ -1,4 +1,4 @@
-{% extends 'layout.jinja2' %}
+﻿{% extends 'layout.jinja2' %}
 
 <head>
   <title>
@@ -23,36 +23,23 @@
 {% block content %}
 
 
+<div><p>{{ sampleForm | safe}}</p></div>
 
-
-<p>Sample Form</p>
-<div>
-<p>{{ form| safe}}</p>
-</div>
-
-
-<div>
-<p>{{ form| safe}}</p>
-</div>
-
-{% set navigation %}
-    <li><a href="/">Index</a>
-    <li><a href="/downloads">Downloads</a>
-{% endset %}
-
-{ navigation } 
 <div class="form-group">
-    <button type="submit" name="submitbutton" value="Save" class="btn btn-default">Save</button>
+    <button type="submit" name="submit" value="submit" class="btn btn-default">Add</button>
 </div>
 
-
-
-<div style="overflow:auto;">
-  <div style="float:right;">
-    <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
-    <button type="button" id="nextBtn" onclick="nextPrev(1)">Next</button>
-  </div>
+<form action="" id="one">
+<div class="form-group">
+    <button type="submit" name="form.submitted" value="sample" class="btn btn-default">Add sample</button>
 </div>
+
+<form action="" id="one">
+<div class="form-group">
+    <button type="submit" name="form.submitted" value="experiment" class="btn btn-default">Add Experiment</button>
+</div>
+</form>
+</form>
 
 <div style="text-align:center;margin-top:40px;">
   <span class="step"></span>
@@ -60,9 +47,7 @@
 </form>  
 </div>
 
-<script type="text/javascript">
-deform.load()
-</script>
+
 
 
 

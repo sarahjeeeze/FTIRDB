@@ -31,7 +31,7 @@ import zope.sqlalchemy
 
 # import or define all models here to ensure they are attached to the
 # Base.metadata prior to any initialization routines
-from .FTIRModel import FTIRModel, atr, chemicals, data_aquisition, depositor, dried_film, experiment, experimental_conditions, fourier_transform_processing, gas, liquid, molecular_composition, molecule, not_atr, post_processing_and_deposited_spectra, project, protein, publication, sample, solid, spectra, spectrometer, state_of_sample
+from .FTIRModel import FTIRModel, dried_film, gas, liquid, project, molecules_in_sample, sample, solid, state_of_sample
 from .spectra import  Spectra, Spectra_detail, Graph_experiment
 from .user import User
 

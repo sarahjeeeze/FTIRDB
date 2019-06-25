@@ -1,0 +1,78 @@
+﻿{% extends 'layout.jinja2' %}
+
+<head>
+  <title>
+    Deform Demo Site
+  </title>
+  <!-- Meta Tags -->
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="C:/ftirdb/ftirdb/static/form.css" type="text/css" />
+  <!-- JavaScript -->
+  <script type="text/javascript"
+          src="C:/ftirdb/ftirdb/static/jquery-2.0.3.min.js"></script>
+  <script type="text/javascript"
+          src="C:/ftirdb/ftirdb/static/form.js"></script>
+  
+</head>
+
+
+
+{% block subtitle %} - {% endblock subtitle %}
+
+{% block content %}
+
+
+<div><p>{{ sampleForm | safe}}</p></div>
+
+
+
+<div style="text-align:center;margin-top:40px;">
+  <span class="step"></span>
+  <span class="step"></span>
+</form>  
+</div>
+
+<div class="form-group">
+    <button type="submit" name="submit" value="submit" class="btn btn-default">Dried Film</button>
+</div>
+
+<form action="" id="one">
+<div class="form-group">
+    <button type="submit" name="form.submitted" value="Gas" class="btn btn-default">Gas</button>
+</div>
+
+<form action="" id="one">
+<div class="form-group">
+    <button type="submit" name="form.submitted" value="Dried_Film" class="btn btn-default">Dried Film</button>
+</div>
+</form>
+
+<form action="" id="one">
+<div class="form-group">
+    <button type="submit" name="form.submitted" value="Solid" class="btn btn-default">Solid</button>
+</div>
+
+<form action="" id="one">
+<div class="form-group">
+    <button type="submit" name="form.submitted" value="Liquid" class="btn btn-default">Liquid</button>
+</div>
+</form>
+
+
+
+<p>
+<a href="{{ edit_url }}">
+    Edit this page
+</a>
+</p>
+<p>
+    Viewing <strong></strong>, created by <strong></strong>.
+</p>
+
+
+
+<p>You can return to the
+<a href="{{request.route_url('view_page', pagename='FrontPage')}}">FrontPage</a>.
+</p>
+{% endblock content %}

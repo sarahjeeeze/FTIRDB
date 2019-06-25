@@ -29,8 +29,7 @@ from pyramid.security import (
 #******************************************
 
 # import the models 
-from .models import FTIRModel, User, atr, chemicals, data_aquisition, depositor, dried_film, experiment, experimental_conditions, fourier_transform_processing, gas, liquid, molecular_composition, molecule, not_atr, post_processing_and_deposited_spectra, project, protein, publication, sample, solid, spectra, spectrometer, state_of_sample
-
+from .models import FTIRModel, dried_film, gas, liquid, project, molecules_in_sample, sample, solid, state_of_sample
 
 
 def includeme(config):
@@ -38,13 +37,15 @@ def includeme(config):
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.add_route('view_wiki', '/')
     config.add_route('searchdb','/searchdb')
-    config.add_route('form','/form')
+    #config.add_route('form','/form')
     config.add_route('projectform','/projectform')
     config.add_route('projectPage','/projectPage/{pagename}',factory=page_factory)
+    config.add_route('sampleForm','/sampleForm')
+    config.add_route('samplePage','/samplePage/{samplename}',factory=sample_page_factory)
     config.add_route('results','/results/{results}')
     config.add_route('graph','/graph')
     config.add_route('about', '/about')
-    config.add_route('jcampupload', '/jcampupload')
+   # config.add_route('jcampupload', '/jcampupload')
     config.add_route('upload', '/upload')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
@@ -83,6 +84,13 @@ class NewPage(object):
 def page_factory(request):
     pagename = request.matchdict['pagename']
     page = request.dbsession.query(project).filter_by(project_ID=pagename).first()
+    if page is None:
+        raise HTTPNotFound
+    return PageResource(page)
+
+def sample_page_factory(request):
+    pagename = request.matchdict['pagename']
+    page = request.dbsession.query(sample).filter_by(project_ID=pagename).first()
     if page is None:
         raise HTTPNotFound
     return PageResource(page)
