@@ -106,8 +106,12 @@ all the values, it also contains buttons for adding samples and experiments. Whe
 the child/parent relationship is created"""
 
     if 'form.submitted' in request.params:
-        if 'form.submitted' == 'sample':
-            return {'projectForm': 'sample'}
+        if request.params['form.submitted'] == 'sample':
+            #retrieve project ID and send to sample page
+            search = request.matchdict['pagename']
+            next_url = request.route_url('sampleForm', project_ID=search)
+            return HTTPFound(location=next_url)
+            
         else:
             return {'projectForm': 'experiment'}
             
@@ -127,7 +131,7 @@ the child/parent relationship is created"""
             dic.update( new )
     
     #need to work on display of this 
-        return {'projectForm': dic}
+        return {'projectForm': dic }
     
     
     

@@ -120,8 +120,8 @@ class liquid(Base):
     atmosphere = Column(String(45))
     sample_ID = Column(INTEGER(11), primary_key=True)
 
-    state_of_sample_ID = Column(Integer, ForeignKey('state_of_sample.state_of_sample_ID'))
-    state_of_sample = relationship('state_of_sample',back_populates='liquid')
+    state_of_sample_ID = Column(Integer, ForeignKey('state_of_sample.state_of_sample_ID'), info={'colanderalchemy': {'exclude': True}})
+    state_of_sample = relationship('state_of_sample',back_populates='liquid', info={'colanderalchemy': {'exclude': True}})
 
 
 
@@ -138,19 +138,19 @@ class dried_film(Base):
     pH = Column(String(45), server_default=text("'RANGE(0,14)'"))
     sample_ID = Column(INTEGER(11), primary_key=True)
 
-    state_of_sample_ID = Column(Integer, ForeignKey('state_of_sample.state_of_sample_ID'))
-    state_of_sample = relationship('state_of_sample',back_populates='dried_film')
+    state_of_sample_ID = Column(Integer, ForeignKey('state_of_sample.state_of_sample_ID'), info={'colanderalchemy': {'exclude': True}})
+    state_of_sample = relationship('state_of_sample',back_populates='dried_film' ,info={'colanderalchemy': {'exclude': True}})
 
 
 class gas(Base):
     __tablename__ = 'gas'
 
-    atmosphere = Column(String(45))
+    atmosphere = Column(String(45), info={'colanderalchemy': {'description': 'atmosphere in psi'}})
     water_vapour = Column(String(45))
     sample_ID = Column(INTEGER(11), primary_key=True)
 
-    state_of_sample_ID = Column(Integer, ForeignKey('state_of_sample.state_of_sample_ID'))
-    state_of_sample = relationship('state_of_sample',back_populates='gas')
+    state_of_sample_ID = Column(Integer, ForeignKey('state_of_sample.state_of_sample_ID'), info={'colanderalchemy': {'exclude': True}})
+    state_of_sample = relationship('state_of_sample',back_populates='gas', info={'colanderalchemy': {'exclude': True}})
 
 
 class solid(Base):
@@ -160,8 +160,8 @@ class solid(Base):
     chemical_formula = Column(String(45))
     sample_ID = Column(INTEGER(11), primary_key=True)
 
-    state_of_sample_ID = Column(Integer, ForeignKey('state_of_sample.state_of_sample_ID'))
-    state_of_sample = relationship('state_of_sample',back_populates='solid')
+    state_of_sample_ID = Column(Integer, ForeignKey('state_of_sample.state_of_sample_ID'), info={'colanderalchemy': {'exclude': True}} )
+    state_of_sample = relationship('state_of_sample',back_populates='solid', info={'colanderalchemy': {'exclude': True}})
 
 class FTIRModel(Base):
     """ This class is to create the main FTIRModel table with SQL alchemy """

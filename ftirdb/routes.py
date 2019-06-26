@@ -40,7 +40,7 @@ def includeme(config):
     #config.add_route('form','/form')
     config.add_route('projectform','/projectform')
     config.add_route('projectPage','/projectPage/{pagename}',factory=page_factory)
-    config.add_route('sampleForm','/sampleForm')
+    config.add_route('sampleForm','/sampleForm/{project_ID}')
     config.add_route('samplePage','/samplePage/{samplename}',factory=sample_page_factory)
     config.add_route('results','/results/{results}')
     config.add_route('graph','/graph')
@@ -89,8 +89,8 @@ def page_factory(request):
     return PageResource(page)
 
 def sample_page_factory(request):
-    pagename = request.matchdict['pagename']
-    page = request.dbsession.query(sample).filter_by(project_ID=pagename).first()
+    pagename = request.matchdict['samplename']
+    page = request.dbsession.query(sample).filter_by(sample_ID=pagename).first()
     if page is None:
         raise HTTPNotFound
     return PageResource(page)
