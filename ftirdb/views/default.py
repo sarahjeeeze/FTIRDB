@@ -42,7 +42,7 @@ from pyramid.response import Response
 import colander
 import deform
 #import models
-from ..models import FTIRModel, User, Spectra, Spectra_detail, Graph_experiment
+from ..models import FTIRModel, User, Spectra_detail, Graph_experiment
 
 @view_config(route_name='view_wiki')
 def view_wiki(request):

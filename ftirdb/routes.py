@@ -29,8 +29,8 @@ from pyramid.security import (
 #******************************************
 
 # import the models 
-from .models import FTIRModel, dried_film, gas, liquid, project, molecules_in_sample, sample, solid, state_of_sample
-
+from .models import FTIRModel, dried_film, gas, data_aquisition, experimental_conditions, project_has_experiment, exp_has_publication, experiment, liquid, project, molecules_in_sample, sample, solid, state_of_sample, molecule, chemical, protein
+from .models.FTIRModel import spectra
 
 def includeme(config):
     """Direct web address to correct page and python views """
@@ -42,6 +42,11 @@ def includeme(config):
     config.add_route('projectPage','/projectPage/{pagename}',factory=page_factory)
     config.add_route('sampleForm','/sampleForm/{project_ID}')
     config.add_route('samplePage','/samplePage/{samplename}',factory=sample_page_factory)
+    config.add_route('moleculeForm','/moleculeForm')
+    config.add_route('moleculePage','/moleculePage/{molecule}',factory=molecule_page_factory)
+    config.add_route('experimentForm','/experimentForm')
+    config.add_route('experimentPage','/experimentPage/{experiment}')
+    config.add_route('spectraForm','/spectraForm')
     config.add_route('results','/results/{results}')
     config.add_route('graph','/graph')
     config.add_route('about', '/about')
@@ -94,6 +99,15 @@ def sample_page_factory(request):
     if page is None:
         raise HTTPNotFound
     return PageResource(page)
+
+def molecule_page_factory(request):
+    pagename = request.matchdict['molecule']
+    page = request.dbsession.query(molecule).filter_by(molecule_ID=pagename).first()
+    if page is None:
+        raise HTTPNotFound
+    return PageResource(page)
+
+
 
 class PageResource(object):
     def __init__(self, page):

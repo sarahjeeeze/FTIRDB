@@ -30,7 +30,7 @@ from sqlalchemy import (
 
 from .meta import Base
 
-class Spectra(Base):
+"""class Spectra(Base):
     __tablename__ = 'Spectra'
     spectra_id = Column(Integer, primary_key=True)
     label = Column(String(32), nullable=False, unique=True)
@@ -39,7 +39,8 @@ class Spectra(Base):
 
    
 
-    
+
+    """
 
 class Spectra_detail(Base):
     __tablename__ = 'Spectra_detail'
