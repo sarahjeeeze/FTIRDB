@@ -56,7 +56,7 @@ class project(Base):
 
     descriptive_name = Column(String(300))
     project_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, default=0, info={'colanderalchemy': {'exclude': True}})
-    related_experiments_ID = Column(String(100))
+    related_experiments_ID = Column(String(100),info={'colanderalchemy': {'description': 'provide a list or add a new experiment'}})
     related_samples_ID = Column(String(100))
 
     
@@ -117,7 +117,7 @@ class molecules_in_sample(Base):
 class liquid(Base):
     __tablename__ = 'liquid'
 
-    solution_composition = Column(String(100), nullable=False)
+    solution_composition = Column(String(100))
     pH = Column(String(45))
     concentration = Column(String(45))
     solvent = Column(String(45))
@@ -239,7 +239,7 @@ class experiment(Base):
     #experimental_conditions_ID = relationship('experimental_conditions',uselist=False, back_populates='experiment', info={'colanderalchemy': {'exclude': True}})
     #need to add samples relationship here
     related_samples = Column(String(100))
-    data_aquisition_ID = Column(ForeignKey('data_aquisition.data_aq_ID'))
+    data_aquisition_ID = Column(ForeignKey('data_aquisition.data_aq_ID'),info={'colanderalchemy': {'exclude': True}})
     
     
     spectrometer_ID = Column(ForeignKey('spectrometer.spectrometer_ID'), info={'colanderalchemy': {'exclude': True}})
@@ -252,7 +252,7 @@ class experiment(Base):
     publication = relationship('publication', secondary='exp_has_publication', info={'colanderalchemy': {'exclude': True}})
     #child of project, spectrum,
     spectrometer_ID = Column(INTEGER(11), ForeignKey('spectrometer.spectrometer_ID'))
-    spectrometer = relationship('spectrometer', back_populates='experiment', info={'colanderalchemy': {'exclude': True}})
+    #spectrometer = relationship('spectrometer', back_populates='experiment', info={'colanderalchemy': {'exclude': True}})
     #need to add project relationship here
         #association tables 4 publication and project
     #may also need a sample association table
@@ -307,24 +307,23 @@ class data_aquisition(Base):
 class spectrometer(Base):
     __tablename__ = 'spectrometer'
 
-    spectrometer_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, default=0, info={'colanderalchemy': {'exclude': True}})
+    spectrometer_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, info={'colanderalchemy': {'exclude': True}})
     instrument_manufacturer = Column(String(45))
     instrument_model = Column(String(45))
-    light_source = Column(Enum('globar', 'laser', 'synchrotron', 'other'), server_default=text("'globar'"))
-    beamsplitter = Column(Enum('KBr', 'Mylar'), server_default=text("'KBr'"))
-    detector__type = Column('detector_ type', Enum('DTGS', 'MCT Broad band', 'MCT narrow band', 'other'), server_default=text("'DTGS'"))
-    optics = Column(Enum('vacuum', 'purged', 'dry', 'atmospheric'), server_default=text("'vacuum'"))
-    type_of_recording = Column(Enum('fourier transform', 'dispersive', 'tunable laser'), server_default=text("'fourier transform'"))
-    mode_of_recording = Column(Enum('transmission', 'ATR', 'transflectance', 'diffuse reflection'), server_default=text("'transmission'"))
-
+    light_source = Column(Enum('globar', 'laser', 'synchrotron', 'other'), default = 'globar',nullable=True )
+    beamsplitter = Column(Enum('KBr', 'Mylar'), default='KBr',nullable=True)
+    detector__type = Column('detector_ type', Enum('DTGS', 'MCT Broad band', 'MCT narrow band', 'other'), server_default=text("'DTGS'"), nullable=True)
+    optics = Column(Enum('vacuum', 'purged', 'dry', 'atmospheric'), server_default=text("'vacuum'"),nullable=True)
+    type_of_recording = Column(Enum('fourier transform', 'dispersive', 'tunable laser'), server_default=text("'fourier transform'"),nullable=True)
+    mode_of_recording = Column(Enum('transmission', 'ATR', 'transflectance', 'diffuse reflection'), server_default=text("'transmission'"),nullable=True)
+   
     
-    atr = relationship('atr', uselist=False)
     #parent of experiment
-    experiment= relationship('experiment',uselist=False,back_populates='spectrometer')
+    #experiment_ID = Column(ForeignKey('experiment.experiment_ID'))
     #parents of not_atr, atr and translfectance/diffuse - 1 to 1
-    not_atr= relationship("not_atr",uselist=False, back_populates="spectrometer")
-    atr= relationship("atr",uselist=False, back_populates="spectrometer")
-    transflectance_diffuse = relationship("transflectance_diffuse",uselist=False, back_populates="spectrometer")
+    #not_atr= relationship("not_atr",uselist=False, back_populates="spectrometer")
+    #atr= relationship("atr",uselist=False, back_populates="spectrometer")
+    #transflectance_diffuse = relationship("transflectance_diffuse",uselist=False, back_populates="spectrometer")
     
     
 class depositor(Base):
@@ -355,39 +354,38 @@ class not_atr(Base):
     __tablename__ = 'not_atr'
 
     
-    not_atr_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, default=0, info={'colanderalchemy': {'exclude': True}})
-    sample_window_material = Column(Enum('CaF2', 'BaF2', 'ZnSe', 'ZnS', 'CdTe', 'KBr', 'KRS-5', 'other'), server_default=text("'CaF2'"))
+    not_atr_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, info={'colanderalchemy': {'exclude': True}})
+    sample_window_material = Column(Enum('CaF2', 'BaF2', 'ZnSe', 'ZnS', 'CdTe', 'KBr', 'KRS-5', 'other'), default='CaF2')
     pathlength__if_known_ = Column('pathlength (if known)', INTEGER(11))
-    multi_well_plate = Column('multi-well_plate', Enum('y', 'n'))
+    multi_well_plate = Column('multi-well_plate', Enum('y', 'n'), default = 'y')
     if_yes___product_code = Column('if yes - product code', String(45))
     #child of spectrometer
-    spectrometer_ID = Column(INTEGER(11), ForeignKey('spectrometer.spectrometer_ID'))
-    spectrometer = relationship("spectrometer",back_populates='not_atr')
+    spectrometer_ID = Column(INTEGER(11),info={'colanderalchemy': {'exclude': True}})
+    #spectrometer = relationship("spectrometer",back_populates='not_atr')
                                                      
 class atr(Base):
     __tablename__ = 'atr'
 
-    atr_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, default=0, info={'colanderalchemy': {'exclude': True}})
-    prism_size_mm = Column(INTEGER(11))
-    number_of_reflections = Column(INTEGER(11))
-    prism_material = Column(Enum('Diamond', 'Ge', 'Si', 'KRS-5', 'ZnS', 'ZnSe'), server_default=text("'Diamond'"))
+    atr_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, info={'colanderalchemy': {'exclude': True}})
+    prism_size_mm = Column(INTEGER(11),nullable=True, default= 0 )
+    number_of_reflections = Column(INTEGER(11),nullable=True, default = 0)
+    prism_material = Column(Enum('Diamond', 'Ge', 'Si', 'KRS-5', 'ZnS', 'ZnSe'), default='Diamond', nullable=True)
     
-    angle_of_incidence_degrees = Column(INTEGER(11))
+    angle_of_incidence_degrees = Column(INTEGER(11),nullable=True, default = 0)
       #child of spectrometer
-    spectrometer_ID = Column(INTEGER(11), ForeignKey('spectrometer.spectrometer_ID'))
-    spectrometer = relationship("spectrometer",back_populates='atr')
+    spectrometer_ID = Column(INTEGER(11),info={'colanderalchemy': {'exclude': True}})
+    #spectrometer = relationship("spectrometer",back_populates='atr')
 
 class transflectance_diffuse(Base):
     __tablename__ = 'transf_diffuse'
-    trans_diff_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, default=0, info={'colanderalchemy': {'exclude': True}})
+    trans_diff_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, info={'colanderalchemy': {'exclude': True}})
 
-    spectrometer_ID = Column(INTEGER(11), primary_key=True, info={'colanderalchemy': {'exclude': True}})
-    reflectance_device = Column(String(45))
-    slide_material = Column(String(45))
-    angle_of_incidence = Column(String(45),info={'colanderalchemy': {'description': 'In degrees'}})
+    reflectance_device = Column(String(45), nullable=True)
+    slide_material = Column(String(45),nullable=True)
+    angle_of_incidence = Column(String(45),nullable=True,info={'colanderalchemy': {'description': 'In degrees'}})
     #child of spectrometer
-    spectrometer_ID = Column(INTEGER(11), ForeignKey('spectrometer.spectrometer_ID'))
-    spectrometer = relationship("spectrometer",back_populates='transflectance_diffuse')
+    spectrometer_ID = Column(INTEGER(11),info={'colanderalchemy': {'exclude': True}})
+    #spectrometer = relationship("spectrometer",back_populates='transflectance_diffuse')
 
 #spectra
 
@@ -396,11 +394,11 @@ class spectra(Base):
     __tablename__ = 'spectra'
 
     spectra_ID= Column(INTEGER(11), primary_key=True, info={'colanderalchemy': {'exclude': True}})
-    spectra_type = Column(Enum('sample power', 'background power spectrum', 'initial result spectrum'))
-    format = Column(Enum('absorbance', 'transmittance', 'reflectance', 'log reflectance', 'kubelka munk', 'ATR spectrum', 'pas spectrum'), info={'colanderalchemy': {'exclude': True}})
+    spectra_type = Column(Enum('sample power', 'background power spectrum', 'initial result spectrum'), nullable=True)
+    format = Column(Enum('absorbance', 'transmittance', 'reflectance', 'log reflectance', 'kubelka munk', 'ATR spectrum', 'pas spectrum'), nullable=True)
     #child of experiment
-    experiment_ID = Column(ForeignKey('experiment.experiment_ID'))
-    experiment = relationship('experiment')
+    experiment_ID = Column(ForeignKey('experiment.experiment_ID'),nullable=True)
+    
     
     
 

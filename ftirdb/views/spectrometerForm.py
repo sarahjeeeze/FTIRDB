@@ -58,29 +58,28 @@ import deform
 import colander
 from deform.widget import Widget, FileUploadWidget
 from deform.interfaces import FileUploadTempStore 
-from ..models import FTIRModel, dried_film, data_aquisition,post_processing_and_deposited_spectra, experimental_conditions, spectra, project_has_experiment, exp_has_publication, experiment, gas, molecule, protein, chemical, liquid, project, molecules_in_sample, sample, solid, state_of_sample
+from ..models import FTIRModel, dried_film, atr, not_atr, transflectance_diffuse, spectrometer, data_aquisition,post_processing_and_deposited_spectra, experimental_conditions, spectra, project_has_experiment, exp_has_publication, experiment, gas, molecule, protein, chemical, liquid, project, molecules_in_sample, sample, solid, state_of_sample
 
 # regular expression used to find WikiWords
 
 
 
-@view_config(route_name='spectraForm', renderer='../templates/spectraForm.jinja2')
-def spectraForm(request):
+@view_config(route_name='spectrometerForm', renderer='../templates/spectrometerForm.jinja2')
+def spectrometerForm(request):
     
     """ project form page """
   
     tmpstore = FileUploadTempStore()
 
     class Sample(colander.MappingSchema):
-        setup_schema(None,spectra)
-        spectraSchema =spectra.__colanderalchemy__
-        sample_power_spectrum = colander.SchemaNode(
-                deform.FileData(),
-                widget=deform.widget.FileUploadWidget(tmpstore)
-                )
-
-        setup_schema(None,post_processing_and_deposited_spectra)
-        ppSchema =post_processing_and_deposited_spectra.__colanderalchemy__
+        setup_schema(None,spectrometer)
+        spectrometerSchema =spectrometer.__colanderalchemy__
+        setup_schema(None,atr)
+        atrSchema =atr.__colanderalchemy__
+        setup_schema(None,not_atr)
+        not_atrSchema =not_atr.__colanderalchemy__
+        setup_schema(None,transflectance_diffuse)
+        trans_diff_Schema =transflectance_diffuse.__colanderalchemy__
         upload = colander.SchemaNode(
                 deform.FileData(),
                 widget=deform.widget.FileUploadWidget(tmpstore)
@@ -104,35 +103,35 @@ def spectraForm(request):
     
     if 'submit' in request.POST:
         #upload file functionality - sample_power_spectrum as initial example
-        print(request.POST)
+        
         controls = request.POST.items()
         pstruct = peppercorn.parse(controls)
         print(pstruct)
-        myfile = pstruct['sample_power_spectrum']['upload']
-        permanent_store = 'C:/ftirdb/ftirdb/static/files'
-        permanent_file = open(os.path.join(permanent_store,
-                                myfile.filename.lstrip(os.sep)),
-                                'wb')
-        shutil.copyfileobj(myfile.file, permanent_file)
-        myfile.file.close()
-        permanent_file.close()
-        print(myfile.filename)
+        
         #break through adding schema to db without having to manually enter each one
-        ok = pstruct['spectraSchema']     
-        page = spectra(**ok)
+        ok = pstruct['spectrometerSchema']     
+        page = spectrometer(**ok)
         request.dbsession.add(page)
-   
+        
+        spectrometer_ID = 1
         #try the same for upload and file name to add to db
-        pok = pstruct['ppSchema']
-        sample_power_spectrum= myfile.filename
-        page = post_processing_and_deposited_spectra(sample_power_spectrum=sample_power_spectrum,**pok)
+        pok = pstruct['atrSchema']
+        page = atr(spectrometer_ID=spectrometer_ID,**pok)
+        request.dbsession.add(page)
+
+        naok = pstruct['not_atrSchema']
+        page = not_atr(spectrometer_ID=spectrometer_ID,**naok)
+        request.dbsession.add(page)
+
+        tran = pstruct['trans_diff_Schema']
+        page = transflectance_diffuse(spectrometer_ID=spectrometer_ID,**tran)
         request.dbsession.add(page)
         #add more of these and then work on jcamp graph overlays with javascript
         return{'spectraForm':'hi'}
     else:
         
-        spectraForm = form.render()
-        return{'spectraForm':spectraForm}
+        spectrometerForm = form.render()
+        return{'spectrometerForm':spectrometerForm}
     
 
      

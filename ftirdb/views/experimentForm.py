@@ -87,40 +87,28 @@ def experimentForm(request):
         controls = request.POST.items()
 
 
-        experiment_description= request.params['experiment_description']
-        related_samples= request.params['related_samples']
-        #spectrometer_ID= request.params['spectrometer_ID']
-        #depositor_ID= request.params['depositor_ID'] #taken out as rely on relationships not yet created
-        #depositor= request.params['depositor']
-        #publication_ID= request.params['publication_ID']
-        #publication= request.params['publication']
-        #spectrometer_ID= request.params['spectrometer_ID']
-        data_aquisition_ID= request.params['data_aquisition_ID']
-        phase= request.params['phase']
-        temperatue= request.params['temperatue']
-        pressure= request.params['pressure']
-        number_of_sample_scans= request.params['number_of_sample_scans']
-        scanner_velocity_KHz= request.params['scanner_velocity_KHz']
-        resolution= request.params['resolution']
-        start_frequency= request.params['start_frequency']
-        end_frequency= request.params['end_frequency']
-        optical_filter= request.params['optical_filter']
-        #higher_range= request.params['higher_range__cm_1_']
-        #lower_range= request.params['lower_range__cm_1_']
-        
-        
-        
+        controls = request.POST.items()     #call validate
+        pstruct = peppercorn.parse(controls)
+        print(pstruct)
         
 
         try:
-                appstruct = form.validate(controls) #call validate
-                page = experiment(experiment_description=experiment_description,
-                                       related_samples=related_samples)
+
+
+
+                appstruct = form.validate(controls)
+                
+                exp = pstruct['experimentSchema'] # try to add to database
+                print(exp)
+                page = experiment(**exp)
                 request.dbsession.add(page)
+                experiment_description= request.params['experiment_description'] #link experiment column to related foreign keys
                 experiment_id = request.dbsession.query(experiment).filter_by(experiment_description=experiment_description).first()
                 experiment_id = experiment_id.experiment_ID
-                page = experimental_conditions(phase=phase, temperatue=temperatue, pressure=pressure,experiment_ID=experiment_id)
+                experimemtal_cond = pstruct['conditionsSchema']
+                page = experimental_conditions(experiment_ID=experiment_id, **experimental_cond)
                 request.dbsession.add(page)
+                
                 page = data_aquisition(number_of_sample_scans=number_of_sample_scans, scanner_velocity_KHz=scanner_velocity_KHz,
                                        resolution=resolution, start_frequency=start_frequency,
                                        end_frequency=end_frequency, optical_filter=optical_filter)
@@ -174,4 +162,26 @@ the child/parent relationship is created"""
         return {'experimentPage': dic }
     
     
-    
+"""experiment_description= request.params['experiment_description']
+        related_samples= request.params['related_samples']
+        #spectrometer_ID= request.params['spectrometer_ID']
+        #depositor_ID= request.params['depositor_ID'] #taken out as rely on relationships not yet created
+        #depositor= request.params['depositor']
+        #publication_ID= request.params['publication_ID']
+        #publication= request.params['publication']
+        #spectrometer_ID= request.params['spectrometer_ID']
+        data_aquisition_ID= request.params['data_aquisition_ID']
+        phase= request.params['phase']
+        temperatue= request.params['temperatue']
+        pressure= request.params['pressure']
+        number_of_sample_scans= request.params['number_of_sample_scans']
+        scanner_velocity_KHz= request.params['scanner_velocity_KHz']
+        resolution= request.params['resolution']
+        start_frequency= request.params['start_frequency']
+        end_frequency= request.params['end_frequency']
+        optical_filter= request.params['optical_filter']
+        #higher_range= request.params['higher_range__cm_1_']
+        #lower_range= request.params['lower_range__cm_1_']
+        
+"""
+            

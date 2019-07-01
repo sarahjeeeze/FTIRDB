@@ -40,13 +40,16 @@ def includeme(config):
     #config.add_route('form','/form')
     config.add_route('projectform','/projectform')
     config.add_route('projectPage','/projectPage/{pagename}',factory=page_factory)
-    config.add_route('sampleForm','/sampleForm/{project_ID}')
+    config.add_route('sampleForm','/sampleForm')
+    config.add_route('sampleForm2','/sampleForm2/{project_ID}')
     config.add_route('samplePage','/samplePage/{samplename}',factory=sample_page_factory)
     config.add_route('moleculeForm','/moleculeForm')
     config.add_route('moleculePage','/moleculePage/{molecule}',factory=molecule_page_factory)
     config.add_route('experimentForm','/experimentForm')
     config.add_route('experimentPage','/experimentPage/{experiment}')
     config.add_route('spectraForm','/spectraForm')
+    config.add_route('spectrometerForm','/spectrometerForm')
+
     config.add_route('results','/results/{results}')
     config.add_route('graph','/graph')
     config.add_route('about', '/about')
@@ -70,7 +73,7 @@ def new_page_factory(request):
 
 def user_factory(request):
     user = request.matchdict['user']
-    page = request.dbsession.query(User).filter_by(name=user).first()
+    page = request.dbsession.query(users).filter_by(name=user).first()
     if page is None:
         raise HTTPNotFound
     return PageResource(page)

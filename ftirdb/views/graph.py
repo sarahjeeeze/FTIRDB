@@ -58,18 +58,24 @@ def view_graph(request):
     
     filename = 'C:/ftirdb/ftirdb/data/infrared_spectra/ozone.jdx'
     jcamp_dict = JCAMP_reader(filename)
-        #plt.plot(jcamp_dict['wavelengths'], jcamp_dict['xsec'])
+    print(jcamp_dict)
+    #plt.plot(jcamp_dict['wavelengths'], jcamp_dict['xsec'])
 
     #plt.xlabel(jcamp_dict['xunits'])
     #plt.ylabel(jcamp_dict['yunits'])
     
     filename2 = 'C:/ftirdb/ftirdb/data/infrared_spectra/toluene.jdx'
     jcamp_dict2 = JCAMP_reader(filename2)
-    plt.plot(jcamp_dict2['x'], jcamp_dict2['y'], label = 'filename2', alpha=0.8, color='blue')
-    plt.savefig('C:/ftirdb/ftirdb/static/fig2.png')
+    print(jcamp_dict2)
+    plt.figure(1)
+    plt.plot(jcamp_dict2['x'], jcamp_dict2['y'], label = 'filename2', alpha=0.4, color='blue')
+    plt.savefig('C:/ftirdb/ftirdb/static/fig.png', transparent=True)
+    plt.figure(2)
+    plt.plot(jcamp_dict2['x'], jcamp_dict2['y'], label = 'filename2', alpha=0.4, color='blue')
     plt.plot(jcamp_dict['x'], jcamp_dict['y'], label='filename', alpha = 0.7, color='red')
     #plt.savefig('C:/ftirdb/ftirdb/static/fig.png')
     #plt.plot(jcamp_dict2['x']-jcamp_dict['x'],jcamp_dict2['y']-jcamp_dict['y'], color = 'green')
-    return{}
+    plt.savefig('C:/ftirdb/ftirdb/static/fig2.png', transparent=True)
+    return{'graphname': 'ftirdb:static/fig.png', 'graphname2':'ftirdb:static/fig2.png' }
     
 

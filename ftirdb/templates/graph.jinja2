@@ -10,12 +10,14 @@ JCAMP graph output <strong>{{pagename}}</strong>
 <a href="{{request.route_url('view_page', pagename='FrontPage')}}">Home page</a>.
 </p>
 <p> Currently showing overlay file
-<img class="logo img-responsive" src="{{request.static_url('ftirdb:static/fig.png') }}" alt="pyramid web framework">
+<img class="logo img-responsive" src="{{request.static_url(graphname2| safe) }}" alt="pyramid web framework">
 
 </p>
 
 <p> Add data below
-{#<img class="logo img-responsive" src="{{request.static_url('ftirdb:static/fig2.png') }}" alt="pyramid web framework">#}
+{#<img class="logo img-responsive" src="{{request.static_url(graphname| safe) }}" alt="pyramid web framework">#}
+
+{#<img class="logo img-responsive" src="{{request.static_url(graphname2| safe) }}" alt="pyramid web framework">#}
 
 <p>
 

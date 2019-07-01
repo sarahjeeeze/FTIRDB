@@ -72,7 +72,7 @@ def projectform(request):
         
     
     if 'submit' in request.POST:
-        #map columns
+        #map columns explicitly - see another form for automatic mapping example
         controls = request.POST.items()
         descriptive_name = request.params['descriptive_name']
         related_experiments_ID = request.params['related_experiments_ID']
@@ -113,9 +113,10 @@ the child/parent relationship is created"""
             return HTTPFound(location=next_url)
             
         else:
-            return {'projectForm': 'experiment'}
+            search = request.matchdict['pagename']
+            next_url = request.route_url('experimentForm')
+            return HTTPFound(location=next_url)
             
-        #next_url = request.route_url('projectPage', pagename=4)
         #return HTTPFound(location=next_url)
         
         
