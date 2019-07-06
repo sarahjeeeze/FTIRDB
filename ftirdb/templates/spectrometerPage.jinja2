@@ -17,30 +17,14 @@
 </head>
 
 
-
 {% block subtitle %} - {% endblock subtitle %}
 
 {% block content %}
 
-<div> {% for key in projectForm %}
-<p>{{ key | safe }} : {{ projectForm[key] | safe }}
 
-{% endfor %}
-
-<div><p>{{ projectForm | safe}}</p></div>
+<div><p>{{ spectrometerPage  | safe}}</p></div>
 
 
-<form action="" id="one">
-<div class="form-group">
-    <button type="button" name="form.submitted" value="sample" class="btn btn-primary">Add sample</button>
-</div>
-
-<form action="" id="one">
-<div class="form-group">
-    <button type="button" name="form.submitted" value="experiment" class="btn btn-primary">Add Experiment</button>
-</div>
-</form>
-</form>
 
 <div style="text-align:center;margin-top:40px;">
   <span class="step"></span>

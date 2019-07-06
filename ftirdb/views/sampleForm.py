@@ -67,26 +67,25 @@ def sampleForm(request):
     """ project form page """
 
             
-    class Liquid(colander.Schema):
-        setup_schema(None,liquid)
-        liquidschema = liquid.__colanderalchemy__
+   
 
     class Sample(colander.MappingSchema):
         setup_schema(None,sample)
         sampleschema =sample.__colanderalchemy__
         setup_schema(None,molecules_in_sample)
-        molecules_in_sample_schema =molecules_in_sample.__colanderalchemy__
+        molecules_in_sample_schema = molecules_in_sample.__colanderalchemy__
         setup_schema(None,state_of_sample)
         state_of_sample_schema =state_of_sample.__colanderalchemy__
         setup_schema(None,liquid)
-        #for now include all of the states as not sure how to add them. Sequence doesnt seem to work
-        liquid_schema =liquid.__colanderalchemy__
+        liquidschema =liquid.__colanderalchemy__
+    
+     
         setup_schema(None,solid)
         solid_schema =solid.__colanderalchemy__
         setup_schema(None,gas)
         gas_schema =gas.__colanderalchemy__
-        setup_schema(None,liquid)
-        liquid_schema =liquid.__colanderalchemy__
+        #for now include all of the states as not sure how to add them. Sequence doesnt seem to work
+
         
           
         
@@ -150,9 +149,7 @@ def sampleForm2(request):
 
   
             
-    class Liquid(colander.Schema):
-        setup_schema(None,liquid)
-        liquidschema = liquid.__colanderalchemy__
+
 
     class Sample(colander.MappingSchema):
         setup_schema(None,sample)
@@ -168,8 +165,7 @@ def sampleForm2(request):
         solid_schema =solid.__colanderalchemy__
         setup_schema(None,gas)
         gas_schema =gas.__colanderalchemy__
-        setup_schema(None,liquid)
-        liquid_schema =liquid.__colanderalchemy__
+     
         
     
 

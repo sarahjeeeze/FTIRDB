@@ -44,11 +44,14 @@ def includeme(config):
     config.add_route('sampleForm2','/sampleForm2/{project_ID}')
     config.add_route('samplePage','/samplePage/{samplename}',factory=sample_page_factory)
     config.add_route('moleculeForm','/moleculeForm')
-    config.add_route('moleculePage','/moleculePage/{molecule}',factory=molecule_page_factory)
+    config.add_route('moleculePage','/moleculePage/{molecule_ID}')
     config.add_route('experimentForm','/experimentForm')
     config.add_route('experimentPage','/experimentPage/{experiment}')
     config.add_route('spectraForm','/spectraForm')
-    config.add_route('spectrometerForm','/spectrometerForm')
+    config.add_route('spectraPage','/spectraPage/{spectra_ID}')
+    config.add_route('spectrometerForm','/spectrometerForm/{experiment_ID}')
+    config.add_route('spectrometerPage','/spectrometerPage/{spectrometer_ID}')
+
 
     config.add_route('results','/results/{results}')
     config.add_route('graph','/graph')
@@ -96,9 +99,17 @@ def page_factory(request):
         raise HTTPNotFound
     return PageResource(page)
 
+
 def sample_page_factory(request):
     pagename = request.matchdict['samplename']
     page = request.dbsession.query(sample).filter_by(sample_ID=pagename).first()
+    if page is None:
+        raise HTTPNotFound
+    return PageResource(page)
+
+def spectrometer_page_factory(request):
+    pagename = request.matchdict['experiment_ID']
+    page = request.dbsession.query(experiment).filter_by(experiment_ID=pagename).first()
     if page is None:
         raise HTTPNotFound
     return PageResource(page)

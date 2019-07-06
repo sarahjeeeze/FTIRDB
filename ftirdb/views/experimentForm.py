@@ -64,6 +64,8 @@ from ..models import FTIRModel, dried_film, data_aquisition, experimental_condit
 
 @view_config(route_name='experimentForm', renderer='../templates/experimentForm.jinja2')
 def experimentForm(request):
+
+    choice = ('1','2','3')
     
     """ project form page """
     class All(colander.MappingSchema):
@@ -74,18 +76,13 @@ def experimentForm(request):
         setup_schema(None,data_aquisition)
         data_aquisition_Schema=data_aquisition.__colanderalchemy__
         
-        
-        
-
-
+    
     tables = All()
     form = deform.Form(tables,buttons=('submit',))
         
-    
     if 'submit' in request.POST:
         #map columns
         controls = request.POST.items()
-
 
         controls = request.POST.items()     #call validate
         pstruct = peppercorn.parse(controls)
@@ -97,24 +94,22 @@ def experimentForm(request):
 
 
                 appstruct = form.validate(controls)
-                
+                experiment_description = request.params['experiment_description']
                 exp = pstruct['experimentSchema'] # try to add to database
                 print(exp)
                 page = experiment(**exp)
                 request.dbsession.add(page)
                 experiment_description= request.params['experiment_description'] #link experiment column to related foreign keys
-                experiment_id = request.dbsession.query(experiment).filter_by(experiment_description=experiment_description).first()
-                experiment_id = experiment_id.experiment_ID
-                experimemtal_cond = pstruct['conditionsSchema']
+                #experiment_id = request.dbsession.query(experiment).filter_by(experiment_description=experiment_description).first()
+                experiment_id = 1 # need to fix this
+                experimental_cond = pstruct['conditionsSchema']
                 page = experimental_conditions(experiment_ID=experiment_id, **experimental_cond)
                 request.dbsession.add(page)
-                
-                page = data_aquisition(number_of_sample_scans=number_of_sample_scans, scanner_velocity_KHz=scanner_velocity_KHz,
-                                       resolution=resolution, start_frequency=start_frequency,
-                                       end_frequency=end_frequency, optical_filter=optical_filter)
+                data_aq = pstruct['data_aquisition_Schema']
+                page = data_aquisition(**data_aq)
                 request.dbsession.add(page)
-                experiment_id = request.dbsession.query(experiment).filter_by(experiment_description=experiment_description).first()
-                experiment_id = experiment_id.experiment_ID
+                #experiment_id = request.dbsession.query(experiment).filter_by(experiment_description=experiment_description).first()
+                experiment_id = 1
                 next_url = request.route_url('experimentPage', experiment=experiment_id)
                 return HTTPFound(location=next_url)
              
@@ -136,18 +131,33 @@ def experimentPage(request):
 all the values, it also contains buttons for adding samples and experiments. When page is linked from here
 the child/parent relationship is created"""
 
-    if 'form.submitted' in request.params:
-        if request.params['form.submitted'] == 'sample':
-            #retrieve project ID and send to sample page
-         return {'projectForm': 'sample'}
-        else:
-            return {'projectForm': 'experiment'}
+    
+
+
+    search = request.matchdict['experiment']
+    #search = request.params['body']
+    searchdb = request.dbsession.query(experiment).filter_by(experiment_ID=search).all()
+    dic = {}
+    #return the dictionary of all values from the row
+    for u in searchdb:
+            new = u.__dict__
+            dic.update( new )
+    if 'form.submitted' in request.params:       
+        if request.params['form.submitted'] == 'spectrometer':
+            #retrieve experiment ID and send to spectrometer page
+            print(request)
+            exp_ID = dic['experiment_ID']
             
-        #next_url = request.route_url('projectPage', pagename=4)
+            next_url = request.route_url('spectrometerForm', experiment_ID = exp_ID)
+            return HTTPFound(location=next_url)
+        else:
+            next_url = request.route_url('spectraForm')
+            return HTTPFound(location=next_url)
         #return HTTPFound(location=next_url)
         
-        
-        
+    else:
+        return {'experimentPage': dic }
+    """       
     else:
         search = request.matchdict['experiment']
     #search = request.params['body']
@@ -158,30 +168,8 @@ the child/parent relationship is created"""
             new = u.__dict__
             dic.update( new )
     
-    #need to work on display of this 
-        return {'experimentPage': dic }
-    
-    
-"""experiment_description= request.params['experiment_description']
-        related_samples= request.params['related_samples']
-        #spectrometer_ID= request.params['spectrometer_ID']
-        #depositor_ID= request.params['depositor_ID'] #taken out as rely on relationships not yet created
-        #depositor= request.params['depositor']
-        #publication_ID= request.params['publication_ID']
-        #publication= request.params['publication']
-        #spectrometer_ID= request.params['spectrometer_ID']
-        data_aquisition_ID= request.params['data_aquisition_ID']
-        phase= request.params['phase']
-        temperatue= request.params['temperatue']
-        pressure= request.params['pressure']
-        number_of_sample_scans= request.params['number_of_sample_scans']
-        scanner_velocity_KHz= request.params['scanner_velocity_KHz']
-        resolution= request.params['resolution']
-        start_frequency= request.params['start_frequency']
-        end_frequency= request.params['end_frequency']
-        optical_filter= request.params['optical_filter']
-        #higher_range= request.params['higher_range__cm_1_']
-        #lower_range= request.params['lower_range__cm_1_']
+    #need to work on display of this """
         
-"""
+    
+
             

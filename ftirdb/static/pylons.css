@@ -334,3 +334,16 @@ tt.xref {
 	font-weight: normal;
 	font-style: normal;
 }
+
+/*buttons*/
+div.form-group .btn btn-default {
+	width: 100px;
+	background: #27AE60;
+	font-weight: bold;
+	color: white;
+	border: 0 none;
+	border-radius: 1px;
+	cursor: pointer;
+	padding: 10px 5px;
+	margin: 10px 5px;
+}

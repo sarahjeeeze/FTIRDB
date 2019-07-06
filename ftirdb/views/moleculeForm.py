@@ -67,10 +67,16 @@ def moleForm(request):
     """ project form page """
 
    
-        
+    choices = ('1','2','3')    
     class All(colander.MappingSchema):
         setup_schema(None,molecule)
         moleculeschema=molecule.__colanderalchemy__
+        
+        setup_schema(None,protein)
+        proteinschema=protein.__colanderalchemy__
+        setup_schema(None,chemical)
+        chemschema=chemical.__colanderalchemy__
+        
         #protein = proteins(widget=deform.widget.SequenceWidget(orderable=True))
 
         
@@ -90,58 +96,36 @@ def moleForm(request):
   
         #map columns
         controls = request.POST.items()
-        print(request.params)
-        print(request.POST)
-        #molecule
-        molecule_name= request.params['molecule_name']
-        molecule_type= request.params['molecule_type']
+        pstruct = peppercorn.parse(controls)
         
-        #protein
-        protein_ID= request.params['protein_ID']
-        protein_common_name= request.params['protein_common_name']
-        alternative_names= request.params['alternative_names']
-        source_organism= request.params['source_organism']
-        uniprot_ID= request.params['uniprot_ID']
-        sequence= request.params['sequence']
-        #source_publications= request.params['source_publications']
-        expression_system_or_natural_source= request.params['expression_system_or_natural_source']
-        expressed_as= request.params['expressed_as']
-        post_translational_modifications= request.params['post_translational_modifications']
-        #mutation_details_expression_tages_isotopically_labelled= request.params['mutation_details_expression_tages_isotopically_labelled']
-        description_of_labels= request.params['description_of_labels']
-        ligands_present= request.params['ligands_present']
-        concentration_or_ratio= request.params['concentration_or_ratio']
-        #chem
-        chemical_ID= request.params['chemical_ID']
-        CAS= request.params['CAS']
-        smiles_inchi_mol2= request.params['smiles_inchi_mol2']
-        chemical_formula= request.params['chemical_formula']
+        #molecule
+  
+    
                  
                 #format for db input - descriptive_name = request.params['descriptive_name']
         
-        
+      
         try:
-                appstruct = form.validate(controls)
 
+                #appstruct = form.validate(controls) 
 
+                mole = pstruct['moleculeschema']
+                moleculename = request.params['molecule_name']
                 
-                page = molecule(molecule_name=molecule_name, molecule_type=molecule_type)
+                page = molecule(**mole)
                 request.dbsession.add(page)
-                page = chemical(chemical_ID=chemical_ID, CAS=CAS, smiles_inchi_mol2=smiles_inchi_mol2, chemical_formula=chemical_formula)
+
+                prot = pstruct['proteinschema']
+                page = protein(**prot)
                 request.dbsession.add(page)
-                
-                page =protein(protein_ID=protein_ID, protein_common_name=protein_common_name, alternative_names=alternative_names,
-                source_organism=source_organism, uniprot_ID=uniprot_ID, sequence=sequence,
-                expression_system_or_natural_source= expression_system_or_natural_source, expressed_as=expressed_as,
-                post_translational_modifications=post_translational_modifications,
-                description_of_labels=description_of_labels, ligands_present=ligands_present, concentration_or_ratio=concentration_or_ratio)
+                molecule_id = request.dbsession.query(molecule).order_by(molecule.molecule_ID.desc()).first()
+                molecule_id  = molecule_id.molecule_ID
+                print(molecule_id)
+                chem = pstruct['chemschema']
+                page = chemical(**chem)
                 request.dbsession.add(page)
-                
-                
-                molecule_id = request.dbsession.query(molecule).filter_by(molecule_name=molecule_name).first()
-                molecule_id = molecule_id.molecule_ID
-                
-                next_url = request.route_url('moleculePage', molecule=molecule_id)
+                             
+                next_url = request.route_url('moleculePage', molecule_ID=molecule_id)
                 return HTTPFound(location=next_url)
              
         except deform.ValidationFailure as e: # catch the exception
@@ -177,7 +161,7 @@ the child/parent relationship is created"""
         
     else:
         print(request)
-        search = request.matchdict['molecule']
+        search = request.matchdict['molecule_ID']
     #search = request.params['body']
         searchdb = request.dbsession.query(molecule).filter_by(molecule_ID=search).all()
         dic = {}
@@ -187,6 +171,6 @@ the child/parent relationship is created"""
             dic.update( new )
     
     #need to work on display of this 
-        return {'samplePage': dic}
+        return {'moleculePage': dic}
     
     
