@@ -18,12 +18,15 @@
 <html lang="en">
 <head>
   <title>Bootstrap Example</title>
+
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
 <script type="text/javascript"
           src="C:/ftirdb/ftirdb/static/form.js"></script>
  <script type="text/javascript"
@@ -59,31 +62,36 @@
         </div>
 </div>
 
-	<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+	<nav class="navbar navbar-inverse">
   <!-- Brand -->
  
 
   <!-- Links -->
-  <ul class="navbar-nav">
-    <li class="nav-item">
+	<div class="container-fluid">
+	<
+	
+  <ul class="nav navbar-nav">
+    <li class="active">
       <li><a class="nav-link" href="http://localhost:6543/about">Home</a></li>
     </li>
     
   
 	<!-- Dropdown -->
 
-    <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-        Add entry
-      </a>
-      <div class="dropdown-menu">
-        <a class="dropdown-item" href="http://localhost:6543/projectform">Project</a>
-					<a class="dropdown-item" href="http://localhost:6543/experimentForm">Experiment</a>
-					<a class="dropdown-item" href="http://localhost:6543/sampleForm">Sample</a>
-					<a class="dropdown-item" href="http://localhost:6543/moleculeForm">Molecule</a>
-					<a class="dropdown-item" href="http://localhost:6543/spectrometerForm">Spectrometer</a>
-					<a class="dropdown-item" href="http://localhost:6543/spectraForm">Spectra</a>
-      </div>
+    <li class="dropdown">
+      <a class="dropdown-toggle" href="#" data-toggle="dropdown">Add entry
+	<span class="caret"></span></a>
+        
+      	<ul class="dropdown-menu">
+      
+        <li><a href="http://localhost:6543/projectform">Project</a></li>
+					
+					<li><a href="http://localhost:6543/experimentForm">Experiment</a></li>
+					<li><a href="http://localhost:6543/sampleForm">Sample</a></li>
+					<li><a href="http://localhost:6543/moleculeForm">Molecule</a></li>
+					<li><a href="http://localhost:6543/spectrometerForm">Spectrometer</a></li>
+					<li><a href="http://localhost:6543/spectraForm">Spectra</a></li>
+      </ul>
     </li>
 
   

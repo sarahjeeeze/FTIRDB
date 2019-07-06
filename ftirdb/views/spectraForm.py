@@ -112,10 +112,13 @@ def spectraForm(request):
                 controls = request.POST.items()
                 pstruct = peppercorn.parse(controls)
                 print(pstruct)
+                """ this doesnt work for now dirName = request.params['experiment_ID']
+                dirName = 'C:/ftirdb/ftirdb/data/' + dirName
+                os.mkdir(dirName)"""
                 myfile = pstruct['sample_power_spectrum']['upload']
                 background = pstruct['background_power_spectrum']['upload']
                 init = pstruct['initial_result_spectrum']['upload']
-                permanent_store = 'C:/ftirdb/ftirdb/static/files'
+                permanent_store = 'C:/ftirdb/ftirdb/data/'
                 permanent_file = open(os.path.join(permanent_store,
                                         myfile.filename.lstrip(os.sep)),
                                         'wb')
@@ -200,23 +203,34 @@ def spectraPage(request):
         for u in searchdb:
             new = u.__dict__
             depodic.update( new )
-        
+
+            
+        plt.figure(1)
         filename = 'C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['sample_power_spectrum']
         jcamp_dict = JCAMP_reader(filename)
         plt.plot(jcamp_dict['x'], jcamp_dict['y'], label='filename', alpha = 0.7, color='blue')
         plt.xlabel(jcamp_dict['xunits'])
         plt.ylabel(jcamp_dict['yunits'])
         plt.savefig('C:/ftirdb/ftirdb/static/fig.png', transparent=True)
-        filename = 'C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['background_power_spectrum']
-        jcamp_dict = JCAMP_reader(filename)
-        plt.plot(jcamp_dict['x'], jcamp_dict['y'], label='filename', alpha = 0.7, color='green')
+        plt.figure(2)
+        filename2 = 'C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['background_power_spectrum']
+        jcamp_dict2 = JCAMP_reader(filename2)
+        plt.plot(jcamp_dict2['x'], jcamp_dict2['y'], label='filename', alpha = 0.7, color='green')
         plt.xlabel(jcamp_dict['xunits'])
         plt.ylabel(jcamp_dict['yunits'])
         plt.savefig('C:/ftirdb/ftirdb/static/fig2.png', transparent=True)
+        plt.figure(3)
+        filename3 = 'C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['initial_result_spectrum']
+        jcamp_dict3 = JCAMP_reader(filename3)
+        plt.plot(jcamp_dict3['x'], jcamp_dict3['y'], label='filename', alpha = 0.7, color='green')
+        plt.xlabel(jcamp_dict['xunits'])
+        plt.ylabel(jcamp_dict['yunits'])
+        plt.savefig('C:/ftirdb/ftirdb/static/fig3.png', transparent=True)
 
     
     #need to work on display of this 
-        return {'spectraPage': spectradic, 'deop':depodic, 'sample_power_spectrum': 'ftirdb:static/fig.png', 'background_power_spectrum': 'ftirdb:static/fig2.png' }
+        return {'spectraPage': spectradic, 'deop':depodic, 'sample_power_spectrum': 'ftirdb:static/fig.png', 'background_power_spectrum': 'ftirdb:static/fig2.png',
+                'initial_result_spectrum': 'ftirdb:static/fig3.png'}
     
     
     

@@ -54,8 +54,9 @@ from pyramid.view import view_config
 from pyramid.response import Response
 import deform
 import colander
+from deform import widget
 
-from ..models import project
+from ..models import project, experiment
 
 # regular expression used to find WikiWords
 
@@ -65,9 +66,38 @@ from ..models import project
 def projectform(request):
     
     """ project form page """
-
+    #if you dont want schema name to show then make it in to a class
     setup_schema(None,project)
     projectSchema=project.__colanderalchemy__
+
+    """
+
+    Add this code for every enumerated value
+
+    
+
+
+    
+            
+    choices = (
+            ('', '- Select -'),
+            ('habanero', 'Habanero'),
+            ('jalapeno', 'Jalapeno'),
+            ('chipotle', 'Chipotle')
+            )
+
+
+
+    class Schema(colander.Schema):
+            pepper = colander.SchemaNode(
+                colander.String(),
+                default='jalapeno',
+                widget=deform.widget.SelectWidget(values=choices)
+                  )
+
+    """
+    
+  
     form = deform.Form(projectSchema,buttons=('submit',))
         
     

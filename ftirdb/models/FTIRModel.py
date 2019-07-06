@@ -371,7 +371,7 @@ class atr(Base):
     atr_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, info={'colanderalchemy': {'exclude': True}})
     prism_size_mm = Column(INTEGER(11),nullable=True, default= 0 )
     number_of_reflections = Column(INTEGER(11),nullable=True, default = 0)
-    prism_material = Column(Enum('Diamond', 'Ge', 'Si', 'KRS-5', 'ZnS', 'ZnSe'), default='Diamond', nullable=True)
+    prism_material = Column(Enum('Diamond', 'Ge', 'Si', 'KRS-5', 'ZnS', 'ZnSe', ''), default='Diamond', nullable=True)
     
     angle_of_incidence_degrees = Column(INTEGER(11),nullable=True, default = 0)
       #child of spectrometer
@@ -397,8 +397,8 @@ class spectra(Base):
 
     spectra_ID= Column(INTEGER(11), primary_key=True, info={'colanderalchemy': {'exclude': True}})
     #add a spectra description here
-    spectra_type = Column(Enum('sample power', 'background power spectrum', 'initial result spectrum'), nullable=True)
-    format = Column(Enum('absorbance', 'transmittance', 'reflectance', 'log reflectance', 'kubelka munk', 'ATR spectrum', 'pas spectrum'), nullable=True)
+    spectra_type = Column(Enum('sample power', 'background power spectrum', 'initial result spectrum', ''), nullable=True)
+    format = Column(Enum('absorbance', 'transmittance', 'reflectance', 'log reflectance', 'kubelka munk', 'ATR spectrum', 'pas spectrum', ''), nullable=True)
     #child of experiment
 
     #can't get foreign key to work atm 
@@ -428,7 +428,7 @@ class post_processing_and_deposited_spectra(Base):
     #deform.widget.FileUploadWidget(tmpstore)
     background_power_spectrum = Column(String(45), info={'colanderalchemy': {'exclude':True}})
     initial_result_spectrum = Column(String(45), info={'colanderalchemy': {'exclude':True}})
-    initial_result_spectrum_format = Column('initial result spectrum format', Enum('Blackman-Harris 3-Term', 'Blackman-Harris 5-Term', 'Norton-Beer,weak', 'Norton-Beer,medium', 'Norton-Beer,strong', 'Boxcar', 'Triangular', 'Four point', 'other'), nullable=True)
+    initial_result_spectrum_format = Column('initial result spectrum format', Enum('Blackman-Harris 3-Term','', 'Blackman-Harris 5-Term', 'Norton-Beer,weak', 'Norton-Beer,medium', 'Norton-Beer,strong', 'Boxcar', 'Triangular', 'Four point', 'other'), nullable=True)
     water_vapour = Column('water vapour', String(45))
     solvent = Column(String(45))
     solution_composition_item_1 = Column(String(45))
@@ -436,11 +436,11 @@ class post_processing_and_deposited_spectra(Base):
     other = Column(String(45))
     baseline_correction = Column(String(45))
     scaling = Column(String(45))
-    second_derivative = Column('2nd_derivative', Enum('y', 'n'), default = 'n')
+    second_derivative = Column('2nd_derivative', Enum('y', 'n',''), default = 'n')
     method = Column(String(45))
     window_point_size_smoothing = Column('window_point_size/smoothing', String(45))
     final_published_spectrum = Column(String(45))
-    final_published_spectrum_format = Column(Enum('absorbance', 'transmittance', 'reflectance', 'log reflectance', 'Kubelka Munk', 'ATR spectrum', 'PAS spectrum'), default='absorbance')
+    final_published_spectrum_format = Column(Enum('absorbance', 'transmittance','', 'reflectance', 'log reflectance', 'Kubelka Munk', 'ATR spectrum', 'PAS spectrum'), default='absorbance')
     smoothing_method = Column(String(45))
     smoothing_parameters = Column(String(45))
     spectra_ID = Column(Integer, index=True)
