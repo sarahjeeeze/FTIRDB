@@ -30,7 +30,8 @@ from sqlalchemy import (
     Text,
     ForeignKey,
     String,
-    Float
+    Float,
+    CheckConstraint
     
 )
 
@@ -42,7 +43,8 @@ from sqlalchemy.dialects.mysql import INTEGER, TINYINT
 
 
 
-
+import colander
+from colander import Range
 from sqlalchemy import Column, Date, Enum, ForeignKey, LargeBinary, String, Table
 from sqlalchemy.dialects.mysql import INTEGER, LONGBLOB, TINYINT
 from sqlalchemy.orm import relationship
@@ -78,7 +80,7 @@ class state_of_sample(Base):
     __tablename__ = 'state_of_sample'
 
     state_of_sample_ID = Column(INTEGER(6), primary_key=True, unique=True,  autoincrement=True, default=0, info={'colanderalchemy': {'exclude': True}})
-    state = Column(Enum('gas', 'solid', 'dried film', 'liquid'), nullable=False, info={'colanderalchemy': {'exclude': True}})
+    state = Column(Enum('gas', 'solid', 'dried film', 'liquid',''), nullable=False, info={'colanderalchemy': {'exclude': True}})
     #enter this somehow with a radiobutton or tick box?
     temperature_degrees = Column(INTEGER(11))
     pressure_PSI = Column(INTEGER(11))
@@ -99,7 +101,7 @@ class molecules_in_sample(Base):
     molecular_composition_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, default=0, info={'colanderalchemy': {'exclude': True}})
     descriptive_name = Column(String(45))
     molecule_1_name = Column(String(45))
-    concentration_1 = Column(INTEGER(11))
+    concentration_1 = Column(INTEGER(11) , info={'colanderalchemy': {'validator': Range(min=1, max=100)}})
     molecule_2_name = Column(String(45))
     concentration_2 = Column(INTEGER(11))
     molecule_3_name = Column(String(45))
@@ -169,10 +171,10 @@ class solid(Base):
 
 
 class molecule(Base):
+    #not deleting but thinking i wont use this? 
     __tablename__ = 'molecule'
 
     molecule_name = Column(String(45), nullable=False)
-    molecule_type = Column(Enum('protein', 'chemical'))
     molecule_ID = Column(INTEGER(11), primary_key=True, autoincrement=True, default=0, info={'colanderalchemy': {'exclude': True}})
     #info={'colanderalchemy': {'widget': 'deform.widget.SelectWidget(values=’chemical’,’protein’)'}}
 
@@ -193,6 +195,7 @@ association_molecule = Table(
     
 class protein(Base):
     __tablename__ = 'protein'
+    sample_ID = Column(Integer, nullable=True, info={'colanderalchemy': {'exclude': True}})
 
     protein_ID = Column(INTEGER(6), primary_key=True, unique=True,  autoincrement=True, default=0, info={'colanderalchemy': {'exclude': True}})
     protein_common_name = Column(String(45))
@@ -206,9 +209,9 @@ class protein(Base):
     post_translational_modifications = Column(String(100))
     mutation_details = Column(String(100))
     expression_tags = Column(String(100))
-    isotopically_labelled = Column(Enum('y', 'n'), default = 'n')
+    isotopically_labelled = Column(Enum('yes', 'no',''), default = 'no')
     description_of_labels = Column(String(100), info={'colanderalchemy': {'description': 'if yes'}})
-    ligands_present = Column(Enum('y', 'n'), default = 'n')
+    ligands_present = Column(Enum('yes', 'no',''), default = 'n')
 
     #one to one relationshiip with molecule
     # 1 to 1 relationship
@@ -218,6 +221,7 @@ class protein(Base):
 
 class chemical(Base):
     __tablename__ = 'chemical'
+    sample_ID = Column(Integer, nullable=True, info={'colanderalchemy': {'exclude': True}})
 
     chemical_ID = Column(INTEGER(11), primary_key=True, nullable=False)
     CAS = Column(String(45))
@@ -232,6 +236,7 @@ class experiment(Base):
     __tablename__ = 'experiment'
 
     experiment_ID =Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, info={'colanderalchemy': {'exclude': True}})
+    project_ID = Column(INTEGER(6),info={'colanderalchemy': {'exclude': True}})
     experiment_description = Column(String(100))
     #experiemntal conditions parent
     #experimental_conditions_ID = relationship('experimental_conditions',uselist=False, back_populates='experiment', info={'colanderalchemy': {'exclude': True}})
@@ -310,14 +315,14 @@ class spectrometer(Base):
     spectrometer_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, info={'colanderalchemy': {'exclude': True}})
     instrument_manufacturer = Column(String(45))
     instrument_model = Column(String(45))
-    light_source = Column(Enum('globar', 'laser', 'synchrotron', 'other'), default = 'globar',nullable=True )
-    beamsplitter = Column(Enum('KBr', 'Mylar'), default='KBr',nullable=True)
-    detector__type = Column('detector_ type', Enum('DTGS', 'MCT Broad band', 'MCT narrow band', 'other'), default='other', nullable=True)
-    optics = Column(Enum('vacuum', 'purged', 'dry', 'atmospheric'), default='dry',nullable=True)
-    type_of_recording = Column(Enum('fourier transform', 'dispersive', 'tunable laser'),  default = 'fourier transform',nullable=True)
-    mode_of_recording = Column(Enum('transmission', 'ATR', 'transflectance', 'diffuse reflection'), default='transmission',nullable=True)
+    light_source = Column(Enum('globar', 'laser', 'synchrotron', 'other',''), default = 'globar',nullable=True, info={'colanderalchemy': {'exclude': True}} )
+    beamsplitter = Column(Enum('KBr', 'Mylar',''), default='KBr',nullable=True, info={'colanderalchemy': {'exclude': True}})
+    detector__type = Column('detector_ type', Enum('DTGS', 'MCT Broad band', 'MCT narrow band', 'other',''), default='other', nullable=True, info={'colanderalchemy': {'exclude': True}})
+    optics = Column(Enum('vacuum', 'purged', 'dry', 'atmospheric',''), default='dry',nullable=True, info={'colanderalchemy': {'exclude': True}})
+    type_of_recording = Column(Enum('fourier transform', 'dispersive', 'tunable laser',''),  default = 'fourier transform',nullable=True, info={'colanderalchemy': {'exclude': True}})
+    mode_of_recording = Column(Enum('transmission', 'ATR', 'transflectance', 'diffuse reflection',''), default='transmission',nullable=True, info={'colanderalchemy': {'exclude': True}})
     #denormalising it
-    experiment_ID = Column(INTEGER(11), ForeignKey(experiment.experiment_ID), nullable=True , info={'colanderalchemy': {'exclude': True}})
+    experiment_ID = Column(INTEGER(11), nullable=True , info={'colanderalchemy': {'exclude': True}})
    
     
     #parent of experiment
@@ -357,9 +362,9 @@ class not_atr(Base):
 
     
     not_atr_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, info={'colanderalchemy': {'exclude': True}})
-    sample_window_material = Column(Enum('CaF2', 'BaF2', 'ZnSe', 'ZnS', 'CdTe', 'KBr', 'KRS-5', 'other'), default='CaF2')
+    sample_window_material = Column(Enum('CaF2', 'BaF2', 'ZnSe', 'ZnS', 'CdTe', 'KBr', 'KRS-5', 'other',''), default='CaF2',info={'colanderalchemy': {'exclude': True}})
     pathlength__if_known_ = Column('pathlength (if known)', INTEGER(11))
-    multi_well_plate = Column('multi-well_plate', Enum('y', 'n'), default = 'y')
+    multi_well_plate = Column('multi-well_plate', Enum('y', 'n',''), default = 'y')
     product_code = Column('if yes - product code', String(45))
     #child of spectrometer
     spectrometer_ID = Column(INTEGER(11),info={'colanderalchemy': {'exclude': True}})
@@ -371,7 +376,7 @@ class atr(Base):
     atr_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, info={'colanderalchemy': {'exclude': True}})
     prism_size_mm = Column(INTEGER(11),nullable=True, default= 0 )
     number_of_reflections = Column(INTEGER(11),nullable=True, default = 0)
-    prism_material = Column(Enum('Diamond', 'Ge', 'Si', 'KRS-5', 'ZnS', 'ZnSe', ''), default='Diamond', nullable=True)
+    prism_material = Column(Enum('Diamond', 'Ge', 'Si', 'KRS-5', 'ZnS', 'ZnSe', ''), default='Diamond', nullable=True, info={'colanderalchemy': {'exclude': True}})
     
     angle_of_incidence_degrees = Column(INTEGER(11),nullable=True, default = 0)
       #child of spectrometer
@@ -397,8 +402,8 @@ class spectra(Base):
 
     spectra_ID= Column(INTEGER(11), primary_key=True, info={'colanderalchemy': {'exclude': True}})
     #add a spectra description here
-    spectra_type = Column(Enum('sample power', 'background power spectrum', 'initial result spectrum', ''), nullable=True)
-    format = Column(Enum('absorbance', 'transmittance', 'reflectance', 'log reflectance', 'kubelka munk', 'ATR spectrum', 'pas spectrum', ''), nullable=True)
+    spectra_type = Column(Enum('sample power', 'background power spectrum', 'initial result spectrum', ''), nullable=True, info={'colanderalchemy': {'exclude': True}})
+    format = Column(Enum('absorbance', 'transmittance', 'reflectance', 'log reflectance', 'kubelka munk', 'ATR spectrum', 'pas spectrum', ''), nullable=True, info={'colanderalchemy': {'exclude': True}})
     #child of experiment
 
     #can't get foreign key to work atm 
@@ -412,10 +417,10 @@ class spectra(Base):
 class ft_processing(Base):
     __tablename__ = 'ft_processing'
     ft_processing_ID = Column(INTEGER(11), primary_key=True, info={'colanderalchemy': {'exclude': True}})
-    apodization__function = Column('apodization_ function', Enum('Blackman-Harris 3-Term', 'Blackman-Harris 5-Term', 'Norton-Beer,weak', 'Norton-Beer,medium', 'Norton-Beer,strong', 'Boxcar', 'Triangular', 'Four point', 'other'))
+    apodization__function = Column('apodization_ function', Enum('Blackman-Harris 3-Term','','Blackman-Harris 5-Term', 'Norton-Beer,weak', 'Norton-Beer,medium', 'Norton-Beer,strong', 'Boxcar', 'Triangular', 'Four point', 'other'))
     zero_filling_factor = Column(INTEGER(11))
     non_linearity_correction = Column(Enum('yes', 'no'))
-    phase_correction_mode = Column(Enum('Mertz', 'Mertz signed', 'Power spectrum', 'Mertz no peak search', 'Mertz signed no peak search', 'Power spectrum no peak search'))
+    phase_correction_mode = Column(Enum('Mertz','', 'Mertz signed', 'Power spectrum', 'Mertz no peak search', 'Mertz signed no peak search', 'Power spectrum no peak search'))
     phase_resolution = Column(INTEGER(11))
     #child of experiment - but maybe should be parent?
     experiment_ID = Column(ForeignKey('experiment.experiment_ID'))

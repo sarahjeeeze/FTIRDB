@@ -66,32 +66,48 @@ def sampleForm(request):
     
     """ project form page """
 
-            
+    choices = (
+            ('', '- Select -'),
+            ('gas', 'gas'),
+            ('solid', 'solid'),
+            ('liquid', 'liquid'),
+            ('dried_film','dried_film'),
+            ('','')
+            )       
    
 
     class Sample(colander.MappingSchema):
         setup_schema(None,sample)
         sampleschema =sample.__colanderalchemy__
+      
         setup_schema(None,molecules_in_sample)
         molecules_in_sample_schema = molecules_in_sample.__colanderalchemy__
         setup_schema(None,state_of_sample)
         state_of_sample_schema =state_of_sample.__colanderalchemy__
+        state = colander.SchemaNode(
+                colander.String(),
+                default='',
+                widget=deform.widget.SelectWidget(values=choices)
+                  )
+   
         setup_schema(None,liquid)
         liquidschema =liquid.__colanderalchemy__
-    
-     
         setup_schema(None,solid)
         solid_schema =solid.__colanderalchemy__
         setup_schema(None,gas)
         gas_schema =gas.__colanderalchemy__
+        setup_schema(None,dried_film)
+        dried_film = dried_film.__colanderalchemy__
+        
         #for now include all of the states as not sure how to add them. Sequence doesnt seem to work
+        #going to try just using collapsibles in bootstrap of javascript 
 
         
           
         
     form = Sample()
-    form = deform.Form(form,buttons=('submit',))
-
+    form = deform.Form(form, buttons=('submit',))
+    
     
     if 'submit' in request.POST:
         descriptive_name= request.params['descriptive_name']
@@ -141,6 +157,7 @@ def sampleForm(request):
     else:
     
         sampleForm = form.render()
+        print(sampleForm)
         return{'sampleForm':sampleForm}
 @view_config(route_name='sampleForm2', renderer='../templates/sampleForm2.jinja2')
 def sampleForm2(request):
@@ -236,10 +253,13 @@ def samplePage(request):
 all the values, it also contains buttons for adding samples and experiments. When page is linked from here
 the child/parent relationship is created"""
 
-    if 'form.submitted' in request.params:
-        if 'form.submitted' == 'sample':
+    if 'submitted' in request.params:
+        if request.params['submitted'] == 'Add molecule':
+            search = request.matchdict['samplename']
+            next_url = request.route_url('moleculeForm2',sample_ID=search)
+            return HTTPFound(location=next_url)
             
-            return {'projectForm': 'sample'}
+           
         else:
             return {'projectForm': 'experiment'}
             
@@ -250,7 +270,6 @@ the child/parent relationship is created"""
         
     else:
         search = request.matchdict['samplename']
-    #search = request.params['body']
         searchdb = request.dbsession.query(sample).filter_by(sample_ID=search).all()
         dic = {}
     #return the dictionary of all values from the row

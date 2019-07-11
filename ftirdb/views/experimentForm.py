@@ -65,7 +65,7 @@ from ..models import FTIRModel, dried_film, data_aquisition, experimental_condit
 @view_config(route_name='experimentForm', renderer='../templates/experimentForm.jinja2')
 def experimentForm(request):
 
-    choice = ('1','2','3')
+   
     
     """ project form page """
     class All(colander.MappingSchema):
@@ -97,11 +97,14 @@ def experimentForm(request):
                 experiment_description = request.params['experiment_description']
                 exp = pstruct['experimentSchema'] # try to add to database
                 print(exp)
-                page = experiment(**exp)
+                page = experiment(project_ID=0,**exp)
                 request.dbsession.add(page)
-                experiment_description= request.params['experiment_description'] #link experiment column to related foreign keys
+                experiment_description= request.params['experiment_description']
+                #retrieve last db entry for experiment ID 
+                id = request.dbsession.query(experiment).order_by(experiment.experiment_ID.desc()).first()#link experiment column to related foreign keys
                 #experiment_id = request.dbsession.query(experiment).filter_by(experiment_description=experiment_description).first()
-                experiment_id = 1 # need to fix this
+                experiment_id = int(id.experiment_ID) 
+                
                 experimental_cond = pstruct['conditionsSchema']
                 page = experimental_conditions(experiment_ID=experiment_id, **experimental_cond)
                 request.dbsession.add(page)
@@ -109,7 +112,7 @@ def experimentForm(request):
                 page = data_aquisition(**data_aq)
                 request.dbsession.add(page)
                 #experiment_id = request.dbsession.query(experiment).filter_by(experiment_description=experiment_description).first()
-                experiment_id = 1
+                
                 next_url = request.route_url('experimentPage', experiment=experiment_id)
                 return HTTPFound(location=next_url)
              
@@ -122,6 +125,73 @@ def experimentForm(request):
     else:
         experimentForm = form.render()
         return{'experimentForm':experimentForm}
+
+@view_config(route_name='experimentForm2', renderer='../templates/experimentForm2.jinja2')
+def experimentForm2(request):
+
+    
+    
+    """ project form page """
+    class All(colander.MappingSchema):
+        setup_schema(None,experiment)
+        experimentSchema=experiment.__colanderalchemy__
+        setup_schema(None,experimental_conditions)
+        conditionsSchema=experimental_conditions.__colanderalchemy__
+        setup_schema(None,data_aquisition)
+        data_aquisition_Schema=data_aquisition.__colanderalchemy__
+        
+    
+    tables = All()
+    form = deform.Form(tables,buttons=('submit',))
+        
+    if 'submit' in request.POST:
+        #map columns
+        controls = request.POST.items()
+        project_ID = request.matchdict['project_ID']
+        controls = request.POST.items()     #call validate
+        pstruct = peppercorn.parse(controls)
+        print(pstruct)
+        
+
+        try:
+
+
+
+                appstruct = form.validate(controls)
+                experiment_description = request.params['experiment_description']
+                exp = pstruct['experimentSchema'] # try to add to database
+                print(exp)
+                page = experiment(project_ID=project_ID,**exp)
+                request.dbsession.add(page)
+                experiment_description= request.params['experiment_description']
+                #retrieve last db entry for experiment ID 
+                id = request.dbsession.query(experiment).order_by(experiment.experiment_ID.desc()).first()#link experiment column to related foreign keys
+                #experiment_id = request.dbsession.query(experiment).filter_by(experiment_description=experiment_description).first()
+                experiment_id = int(id.experiment_ID) 
+                
+                experimental_cond = pstruct['conditionsSchema']
+                page = experimental_conditions(experiment_ID=experiment_id, **experimental_cond)
+                request.dbsession.add(page)
+                data_aq = pstruct['data_aquisition_Schema']
+                page = data_aquisition(**data_aq)
+                request.dbsession.add(page)
+                #experiment_id = request.dbsession.query(experiment).filter_by(experiment_description=experiment_description).first()
+                
+                next_url = request.route_url('experimentPage', experiment=experiment_id)
+                return HTTPFound(location=next_url)
+             
+        except deform.ValidationFailure as e: # catch the exception
+                return {'experimentForm':e.render()}
+           
+
+        
+    
+    else:
+        experimentForm = form.render()
+        return{'experimentForm':experimentForm}
+    
+
+    
     
 @view_config(route_name='experimentPage', renderer='../templates/experimentPage.jinja2')
 

@@ -29,7 +29,7 @@ from pyramid.security import (
 #******************************************
 
 # import the models 
-from .models import FTIRModel, dried_film, gas, data_aquisition, experimental_conditions, project_has_experiment, exp_has_publication, experiment, liquid, project, molecules_in_sample, sample, solid, state_of_sample, molecule, chemical, protein
+from .models import FTIRModel, dried_film, gas, data_aquisition, experimental_conditions,spectrometer, project_has_experiment, exp_has_publication, experiment, liquid, project, molecules_in_sample, sample, solid, state_of_sample, molecule, chemical, protein
 from .models.FTIRModel import spectra
 
 def includeme(config):
@@ -44,15 +44,16 @@ def includeme(config):
     config.add_route('sampleForm2','/sampleForm2/{project_ID}')
     config.add_route('samplePage','/samplePage/{samplename}',factory=sample_page_factory)
     config.add_route('moleculeForm','/moleculeForm')
+    config.add_route('moleculeForm2','/moleculeForm2/{sample_ID}')
     config.add_route('moleculePage','/moleculePage/{molecule_ID}')
     config.add_route('experimentForm','/experimentForm')
+    config.add_route('spectrometerForm','/spectrometerForm/{experiment_ID}')
+    config.add_route('spectrometerPage','/spectrometerPage/{spectrometer_ID}')
+    config.add_route('experimentForm2','/experimentForm2/{project_ID}')
     config.add_route('experimentPage','/experimentPage/{experiment}')
     config.add_route('spectraForm','/spectraForm')
     config.add_route('spectraPage','/spectraPage/{spectra_ID}')
-    config.add_route('spectrometerForm','/spectrometerForm/{experiment_ID}')
-    config.add_route('spectrometerPage','/spectrometerPage/{spectrometer_ID}')
-
-
+    
     config.add_route('results','/results/{results}')
     config.add_route('graph','/graph')
     config.add_route('about', '/about')

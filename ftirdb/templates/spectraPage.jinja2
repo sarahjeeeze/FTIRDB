@@ -25,7 +25,9 @@
 
 <div><p>{{ spectraPage | safe}}</p></div>
 
-
+<a href="{{request.static_url('ftirdb:static/fig.png') }}" download>
+  <img src="{{request.static_url('ftirdb:static/fig.png') }}" id="picture" width=600px>
+</a>
 <div><p>{{ deop | safe}}</p></div>
 
 
@@ -35,6 +37,7 @@
 <form action="" id="animals">
 <input type="radio" id="onegraph" name="animal" value="red" onClick="changeSrc()">one<br>
 <input type="radio" id="twographs" name="animal" value="blue" onClick="changeSrc()">two<br>
+<input type="radio" id="threegraphs" name="animal" value="blue" onClick="changeSrc()">two<br>
     </form>
 <img src="{{request.static_url('ftirdb:static/fig.png') }}" id="picture" width=600px>
 

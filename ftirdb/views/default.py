@@ -42,7 +42,7 @@ from pyramid.response import Response
 import colander
 import deform
 #import models
-from ..models import FTIRModel, User, Spectra_detail, Graph_experiment, spectra
+from ..models import FTIRModel, User, Spectra_detail, Graph_experiment, spectra, experiment, project
 
 @view_config(route_name='view_wiki')
 def view_wiki(request):
@@ -65,7 +65,7 @@ def view_searchdb(request):
     Jinja 2 will render these in to html"""
     if 'form.submitted' in request.params:
         search = request.params['body']
-        searchdb = request.dbsession.query(spectra).filter(spectra.format==search).all()
+        searchdb = request.dbsession.query(project).filter(project.descriptive_name==search).all()
         count = 0 
         dic = {}
         for item in searchdb:

@@ -124,7 +124,7 @@ def moleForm(request):
                 chem = pstruct['chemschema']
                 page = chemical(**chem)
                 request.dbsession.add(page)
-                             
+                
                 next_url = request.route_url('moleculePage', molecule_ID=molecule_id)
                 return HTTPFound(location=next_url)
              
@@ -138,7 +138,86 @@ def moleForm(request):
         
         sampleForm = form.render()
         return{'sampleForm':sampleForm}
+@view_config(route_name='moleculeForm2', renderer='../templates/moleculeForm2.jinja2')
+def moleForm(request):
     
+    """ project form page """
+
+    sample_ID = request.matchdict['sample_ID']
+    choices = ('1','2','3')    
+    class All(colander.MappingSchema):
+        setup_schema(None,molecule)
+        moleculeschema=molecule.__colanderalchemy__
+        
+        setup_schema(None,protein)
+        proteinschema=protein.__colanderalchemy__
+        setup_schema(None,chemical)
+        chemschema=chemical.__colanderalchemy__
+        
+        #protein = proteins(widget=deform.widget.SequenceWidget(orderable=True))
+
+        
+        
+    form = All()
+    print(form)
+    #reqts = form['form1']['form'].get_widget_resources()
+    form = deform.Form(form,buttons=('submit',))
+
+    
+
+
+
+    if 'submit' in request.POST:
+              
+        
+  
+        #map columns
+        controls = request.POST.items()
+        pstruct = peppercorn.parse(controls)
+        
+        #molecule
+  
+    
+                 
+                #format for db input - descriptive_name = request.params['descriptive_name']
+        
+      
+        try:
+
+                #appstruct = form.validate(controls) 
+
+                mole = pstruct['moleculeschema']
+                moleculename = request.params['molecule_name']
+                
+                page = molecule(**mole)
+                request.dbsession.add(page)
+
+                prot = pstruct['proteinschema']
+                page = protein(**prot)
+                request.dbsession.add(page)
+                molecule_id = request.dbsession.query(molecule).order_by(molecule.molecule_ID.desc()).first()
+                molecule_id  = molecule_id.molecule_ID
+                print(molecule_id)
+                chem = pstruct['chemschema']
+                page = chemical(**chem)
+                request.dbsession.add(page)
+                
+                #fill out association table but only if form navigated from sample page
+                association = association_molecule(mols_in_sample_ID=sample_ID,molecule_ID=molecule_id)
+                request.dbsessions.add(association)
+                next_url = request.route_url('moleculePage', molecule_ID=molecule_id)
+                return HTTPFound(location=next_url)
+             
+        except deform.ValidationFailure as e: # catch the exception
+                return {'sampleForm':e.render()}
+           
+
+        
+    
+    else:
+        
+        sampleForm = form.render()
+        return{'sampleForm':sampleForm}    
 @view_config(route_name='moleculePage', renderer='../templates/moleculePage.jinja2')
 
 def moleculePage(request):

@@ -29,6 +29,7 @@ requires = [
     'zope.sqlalchemy',
     'waitress',
     'ColanderAlchemy',
+    'pathlib',
     
 ]
 

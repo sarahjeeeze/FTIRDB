@@ -13,8 +13,8 @@ from pyramid.httpexceptions import (
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 from pyramid.response import Response
-
-from ..models import FTIRModel, User, spectra, post_processing_and_deposited_spectra 
+from sqlalchemy import or_
+from ..models import FTIRModel, User, spectra, post_processing_and_deposited_spectra , project, experiment
 
 # regular expression used to find WikiWords
 wikiwords = re.compile(r"\b([A-Z]\w+[A-Z]+\w+)")
@@ -25,13 +25,13 @@ def view_results(request):
     
     search = request.matchdict['results']
     #search = request.params['body']
-    searchdb = request.dbsession.query(post_processing_and_deposited_spectra).filter(post_processing_and_deposited_spectra.PPandD_ID==search).all()
+    searchdb = request.dbsession.query(project,spectra,experiment).filter(or_(project.descriptive_name==search),(experiment.experiment_ID==search)).all()
     count = 0
     print(searchdb)
     dic = {}
     for item in searchdb:
         count += 1
-        dic[item.PPandD_ID] = item
+        dic[item] = count
 
     return {"dic":dic}
     #dict =	{

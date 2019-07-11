@@ -41,6 +41,8 @@ from sqlalchemy.orm import relation, backref, synonym
 from sqlalchemy.orm.exc import NoResultFound
 import colanderalchemy
 from colanderalchemy import setup_schema
+import pathlib
+from pathlib import Path
 
 
 import numpy as np
@@ -62,7 +64,8 @@ from ..models import FTIRModel, dried_film, data_aquisition,post_processing_and_
 
 # regular expression used to find WikiWords
 
-
+type_choices = (('sample power','sample power'),( 'background power spectrum','background power spectrum'),('initial result spectrum','initial result spectrum'),('',''))
+format_choices = (('absorbance','absorbance'), ('transmittance', 'transmittance'),('reflectance','reflectance'),( 'log reflectance','log reflectance'),( 'kubelka munk','kubelka munk'), ( 'ATR spectrum','ATR spectrum'), ('pas spectrum', 'pas spectrum'),('',''))
 
 @view_config(route_name='spectraForm', renderer='../templates/spectraForm.jinja2')
 def spectraForm(request):
@@ -74,6 +77,16 @@ def spectraForm(request):
     class Sample(colander.MappingSchema):
         setup_schema(None,spectra)
         spectraSchema =spectra.__colanderalchemy__
+        type = colander.SchemaNode(
+                colander.String(),
+                default='',
+                widget=deform.widget.SelectWidget(values=type_choices)
+                  )
+        format = colander.SchemaNode(
+                colander.String(),
+                default='',
+                widget=deform.widget.SelectWidget(values=format_choices)
+                  )
         sample_power_spectrum = colander.SchemaNode(
                 deform.FileData(),
                 widget=deform.widget.FileUploadWidget(tmpstore)
@@ -118,7 +131,8 @@ def spectraForm(request):
                 myfile = pstruct['sample_power_spectrum']['upload']
                 background = pstruct['background_power_spectrum']['upload']
                 init = pstruct['initial_result_spectrum']['upload']
-                permanent_store = 'C:/ftirdb/ftirdb/data/'
+                #using pure path as coding on windows and putting on to a linux server
+                permanent_store = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/')
                 permanent_file = open(os.path.join(permanent_store,
                                         myfile.filename.lstrip(os.sep)),
                                         'wb')
@@ -139,8 +153,10 @@ def spectraForm(request):
                 permanent_file.close()
                 print(myfile.filename)
                 #break through adding schema to db without having to manually enter each one
-                ok = pstruct['spectraSchema']     
-                page = spectra(**ok)
+                ok = pstruct['spectraSchema']
+                type = request.params['type']
+                format = request.params['format']
+                page = spectra(**ok, spectra_type=type,format=format)
                 request.dbsession.add(page)
            
                 #try the same for upload and file name to add to db
@@ -151,7 +167,7 @@ def spectraForm(request):
                 page = post_processing_and_deposited_spectra(sample_power_spectrum=sample_power_spectrum, background_power_spectrum=background_power_spectrum,initial_result_spectrum=initial,**pok)
                 request.dbsession.add(page)
                 #in future change this so it just querys spectra and takes the first option
-                searchdb = request.dbsession.query(spectra).first()
+                searchdb = request.dbsession.query(spectra).order_by(spectra.spectra_ID.desc()).first()
                 spectra_ID = searchdb.spectra_ID
 
 
@@ -192,21 +208,23 @@ def spectraPage(request):
     else:
         search = request.matchdict['spectra_ID']
     #search = request.params['body']
-        searchdb = request.dbsession.query(spectra).filter_by(spectra_ID=search).all()
+        """
+        searchspectra = request.dbsession.query(spectra).filter_by(experiment_ID=search).all()
         spectradic = {}
     #return the dictionary of all values from the row
-        for u in searchdb:
+        for u in searchspectra:
             new = u.__dict__
             spectradic.update( new )
-        searchdb = request.dbsession.query(post_processing_and_deposited_spectra).filter_by(spectra_ID=search).all()
+        """
+        spec_ID = 1 
+        ppd = request.dbsession.query(post_processing_and_deposited_spectra).filter_by(spectra_ID=spec_ID).all()
         depodic = {}
-        for u in searchdb:
+        for u in ppd:
             new = u.__dict__
             depodic.update( new )
-
             
         plt.figure(1)
-        filename = 'C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['sample_power_spectrum']
+        filename = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['sample_power_spectrum'])
         jcamp_dict = JCAMP_reader(filename)
         plt.plot(jcamp_dict['x'], jcamp_dict['y'], label='filename', alpha = 0.7, color='blue')
         plt.xlabel(jcamp_dict['xunits'])
@@ -229,7 +247,7 @@ def spectraPage(request):
 
     
     #need to work on display of this 
-        return {'spectraPage': spectradic, 'deop':depodic, 'sample_power_spectrum': 'ftirdb:static/fig.png', 'background_power_spectrum': 'ftirdb:static/fig2.png',
+        return { 'deop':depodic, 'sample_power_spectrum': 'ftirdb:static/fig.png', 'background_power_spectrum': 'ftirdb:static/fig2.png',
                 'initial_result_spectrum': 'ftirdb:static/fig3.png'}
     
     

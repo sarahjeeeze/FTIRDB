@@ -21,7 +21,22 @@
 {% block subtitle %} - {% endblock subtitle %}
 
 {% block content %}
+<p><h1> Project page </h1> </p>
 
+
+<p>
+<form action="" id="one">
+<div class="form-group" > 
+    <input type="submit" name="submitted" value="Add sample" class="btn btn-primary">
+</div>
+
+<div class="form-group">
+    <input type="submit" name="submitted" value="Add experiment" class="btn btn-primary">
+</div>
+
+</p>
+
+ <div class="col-md-12">
 <div> {% for key in projectForm %}
 <p>{{ key | safe }} : {{ projectForm[key] | safe }}
 
@@ -30,20 +45,29 @@
 
 JUST PRESENT ALL 'final published spectra' on this page and allow to be overlayed using for statements
 
+
+
+
 <div><p>{{ projectForm | safe}}</p></div>
+<div><p>{{ expdic | safe}}</p></div>
+<div><p>{{ spectrodic | safe}}</p></div>
+<div><p>{{ depodic | safe}}</p></div>
+<div><p>{{ spectradic | safe}}</p></div>
 
 
-<form action="" id="one">
-<div class="form-group">
-    <button type="button" name="form.submitted" value="sample" class="btn btn-primary">Add sample</button>
-</div>
 
-<form action="" id="one">
-<div class="form-group">
-    <button type="button" name="form.submitted" value="experiment" class="btn btn-primary">Add Experiment</button>
-</div>
-</form>
-</form>
+<form action="" id="animals">
+<input type="radio" id="onegraph" name="animal" value="red" onClick="changeSrc()">Sample power Spectrum 
+<a href="{{filename }}" download> Download</a> <br>
+<input type="radio" id="twographs" name="animal" value="blue" onClick="changeSrc()">Background power spectrum
+<a href="{{filename2 }}" download> Download</a> <br>
+<input type="radio" id="threegraphs" name="animal" value="blue" onClick="changeSrc()">Initial result spectrum
+<a href="{{filename3 }}" download> Download</a> <br>
+
+    </form>
+
+<img src="{{request.static_url('ftirdb:static/fig.png') }}" id="picture" width=600px>
+
 
 <div style="text-align:center;margin-top:40px;">
   <span class="step"></span>
