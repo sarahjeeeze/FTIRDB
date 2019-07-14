@@ -307,7 +307,7 @@ class data_aquisition(Base):
     lower_range = Column('lower_range_(cm-1)', INTEGER(11), info={'colanderalchemy': {'description': 'cm^-1'}}) #spelling mistake, exclude for now
     #child of experiment
     #higher_range__cm_1_
-    experiment_ID = Column(INTEGER(11),info={'colanderalchemy': {'description': 'struggling to model as a foreign key so for now just fill in corresponding experiment number but fix this later'}})    #experiment = relationship('experiment',back_populates='data_aquisition')
+    experiment_ID = Column(INTEGER(11),info={'colanderalchemy': {'exclude': True}})    #experiment = relationship('experiment',back_populates='data_aquisition')
     
 class spectrometer(Base):
     __tablename__ = 'spectrometer'
@@ -400,7 +400,7 @@ class transflectance_diffuse(Base):
 class spectra(Base):
     __tablename__ = 'spectra'
 
-    spectra_ID= Column(INTEGER(11), primary_key=True, info={'colanderalchemy': {'exclude': True}})
+    spectra_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, info={'colanderalchemy': {'exclude': True}})
     #add a spectra description here
     spectra_type = Column(Enum('sample power', 'background power spectrum', 'initial result spectrum', ''), nullable=True, info={'colanderalchemy': {'exclude': True}})
     format = Column(Enum('absorbance', 'transmittance', 'reflectance', 'log reflectance', 'kubelka munk', 'ATR spectrum', 'pas spectrum', ''), nullable=True, info={'colanderalchemy': {'exclude': True}})
@@ -433,6 +433,7 @@ class post_processing_and_deposited_spectra(Base):
     #deform.widget.FileUploadWidget(tmpstore)
     background_power_spectrum = Column(String(45), info={'colanderalchemy': {'exclude':True}})
     initial_result_spectrum = Column(String(45), info={'colanderalchemy': {'exclude':True}})
+    #this enum needs to be changed to transmitance/reflectance etc
     initial_result_spectrum_format = Column('initial result spectrum format', Enum('Blackman-Harris 3-Term','', 'Blackman-Harris 5-Term', 'Norton-Beer,weak', 'Norton-Beer,medium', 'Norton-Beer,strong', 'Boxcar', 'Triangular', 'Four point', 'other'), nullable=True)
     water_vapour = Column('water vapour', String(45))
     solvent = Column(String(45))
@@ -444,11 +445,11 @@ class post_processing_and_deposited_spectra(Base):
     second_derivative = Column('2nd_derivative', Enum('y', 'n',''), default = 'n')
     method = Column(String(45))
     window_point_size_smoothing = Column('window_point_size/smoothing', String(45))
-    final_published_spectrum = Column(String(45))
+    final_published_spectrum = Column(String(45), info={'colanderalchemy': {'exclude':True}})
     final_published_spectrum_format = Column(Enum('absorbance', 'transmittance','', 'reflectance', 'log reflectance', 'Kubelka Munk', 'ATR spectrum', 'PAS spectrum'), default='absorbance')
     smoothing_method = Column(String(45))
     smoothing_parameters = Column(String(45))
-    spectra_ID = Column(Integer, index=True)
+    spectra_ID = Column(Integer, index=True, info={'colanderalchemy': {'exclude': True}})
     PPandD_ID = Column(INTEGER(4), primary_key=True, unique=True,  autoincrement=True, info={'colanderalchemy': {'exclude': True}})
 
 

@@ -194,7 +194,8 @@ def sampleForm2(request):
     
 
 
-
+    project_id = request.matchdict['project_ID']
+        
     if 'submit' in request.POST:
         descriptive_name= request.params['descriptive_name']
         composition= request.params['composition']
@@ -217,10 +218,9 @@ def sampleForm2(request):
         print(request.POST)
         #format for db input - descriptive_name = request.params['descriptive_name']
         
-        
         try:
                 appstruct = form.validate(controls)
-                page = sample(descriptive_name=descriptive_name,composition=composition)#call validate
+                page = sample(descriptive_name=descriptive_name,composition=composition, project_ID=project_id)#call validate
                 request.dbsession.add(page)
                 page = molecules_in_sample(descriptive_name=descriptive_name,molecule_4_name=molecule_4_name,
                                            molecule_3_name=molecule_3_name,molecule_2_name=molecule_2_name,

@@ -23,23 +23,36 @@
 {% block content %}
 
 
-<div><p>{{ experimentPage | safe}}</p></div>
+<div><p>{{ experiment| safe}}</p></div>
+<div><p>{{ conditions | safe}}</p></div>
+<div><p>{{ data_aquisition | safe}}</p></div>
 
+
+Related Spectra
+<div> {% for key,value in spectra.items() %}
+
+<li><a href="http://localhost:6543/spectraPage/{{ key | safe}}">{{ key }}</a> <a href="http://localhost:6543/static/data/{{ value | safe}}" download > download final published </a>
+</li>
+{% endfor %}
+
+</div>
+
+<img src="{{request.static_url('ftirdb:static/experiment.png') }}" id="picture" width=600px>
+
+<form action="" id="one">
 <div class="form-group">
-    <button type="submit" name="submit" value="submit" class="btn btn-default">Add</button>
+    <input type="submit" name="form.submitted" value="Add spectrometer" class="btn btn-primary">
 </div>
 
 <form action="" id="one">
 <div class="form-group">
-    <button type="submit" name="form.submitted" value="spectrometer" class="btn btn-default">Add Spectrometer</button>
+    <input type="submit" name="form.submitted" value="Addspectra" class="btn btn-primary">
 </div>
+</form>
+</form>
 
-<form action="" id="one">
-<div class="form-group">
-    <button type="submit" name="form.submitted" value="spectra" class="btn btn-default">Add Spectra</button>
-</div>
-</form>
-</form>
+
+
 
 <div style="text-align:center;margin-top:40px;">
   <span class="step"></span>

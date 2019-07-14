@@ -36,37 +36,38 @@
 
 </p>
 
- <div class="col-md-12">
-<div> {% for key in projectForm %}
-<p>{{ key | safe }} : {{ projectForm[key] | safe }}
 
-{% endfor %}
-
-
-JUST PRESENT ALL 'final published spectra' on this page and allow to be overlayed using for statements
-
-
-
-
-<div><p>{{ projectForm | safe}}</p></div>
+<div><p>{{ dic | safe}}</p></div>
 <div><p>{{ expdic | safe}}</p></div>
 <div><p>{{ spectrodic | safe}}</p></div>
 <div><p>{{ depodic | safe}}</p></div>
 <div><p>{{ spectradic | safe}}</p></div>
+<div><p>{{ exper| safe}}</p></div>
+<div><p>{{ samples| safe}}</p></div>
 
 
+ <div class="col-md-12">
+Project data
+<div> {% for key in dic %}
+<li>{{ key | safe }} : {{ dic[key] | safe }}</li>
 
-<form action="" id="animals">
-<input type="radio" id="onegraph" name="animal" value="red" onClick="changeSrc()">Sample power Spectrum 
-<a href="{{filename }}" download> Download</a> <br>
-<input type="radio" id="twographs" name="animal" value="blue" onClick="changeSrc()">Background power spectrum
-<a href="{{filename2 }}" download> Download</a> <br>
-<input type="radio" id="threegraphs" name="animal" value="blue" onClick="changeSrc()">Initial result spectrum
-<a href="{{filename3 }}" download> Download</a> <br>
+{% endfor %}
+Related experiments
+<div> {% for key,value in exper.items() %}
+<li><a href="http://localhost:6543/experimentPage/{{ value | safe}}">{{ key }}</li></a>
 
-    </form>
 
-<img src="{{request.static_url('ftirdb:static/fig.png') }}" id="picture" width=600px>
+{% endfor %}
+
+
+Related Samples
+<div> {% for key,value in samples.items() %}
+<li><a href="http://localhost:6543/samplePage/{{ value | safe}}">{{ key }}</li></a>
+
+
+{% endfor %}
+
+
 
 
 <div style="text-align:center;margin-top:40px;">
@@ -79,18 +80,4 @@ JUST PRESENT ALL 'final published spectra' on this page and allow to be overlaye
 
 
 
-<p>
-<a href="{{ edit_url }}">
-    Edit this page
-</a>
-</p>
-<p>
-    Viewing <strong></strong>, created by <strong></strong>.
-</p>
-
-
-
-<p>You can return to the
-<a href="{{request.route_url('view_page', pagename='FrontPage')}}">FrontPage</a>.
-</p>
 {% endblock content %}

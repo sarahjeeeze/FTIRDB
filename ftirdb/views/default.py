@@ -41,8 +41,9 @@ from pyramid.response import Response
 # import modules for creating forms
 import colander
 import deform
+from deform import widget
 #import models
-from ..models import FTIRModel, User, Spectra_detail, Graph_experiment, spectra, experiment, project
+from ..models import FTIRModel, User, Spectra_detail, Graph_experiment, spectra, experiment, project, spectrometer, molecule, sample
 
 @view_config(route_name='view_wiki')
 def view_wiki(request):
@@ -63,14 +64,37 @@ def view_searchdb(request):
     input: parameters to search on (currently just any word
     output: list of search results
     Jinja 2 will render these in to html"""
+    
     if 'form.submitted' in request.params:
+        #need to move this all to the results page 
         search = request.params['body']
-        searchdb = request.dbsession.query(project).filter(project.descriptive_name==search).all()
-        count = 0 
+        name = request.params['table']
+        haha = eval(name).__table__.columns.keys()
+        print('here')
+        print (haha)
         dic = {}
-        for item in searchdb:
-            count += 1
-            dic[item] = count
+        count = 0 
+        for i in haha:
+          try:
+            ok = eval(i)
+            print(ok)
+            annoy = eval(name)
+            searchdb = request.dbsession.query(annoy).filter_by(ok=search).all()
+            print('worked')
+            print(i)
+            if searchdb is not None:
+                for item in searchdb:
+                    count += 1
+                    new = u.__dict__
+                    dic.update( new )
+                    
+          except:
+              print(name)
+              print(i)
+              continue
+        print(dic)
+        
+        
         #return {"dic":dic}
         #dic = {str(k): v for k, v in dic.items()}
         

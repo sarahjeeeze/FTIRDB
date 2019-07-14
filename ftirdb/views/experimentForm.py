@@ -39,7 +39,7 @@ from sqlalchemy.orm import relation, backref, synonym
 from sqlalchemy.orm.exc import NoResultFound
 import colanderalchemy
 from colanderalchemy import setup_schema
-
+import pathlib
 
 import numpy as np
 
@@ -55,7 +55,7 @@ from pyramid.response import Response
 import deform
 import colander
 
-from ..models import FTIRModel, dried_film, data_aquisition, experimental_conditions, project_has_experiment, exp_has_publication, experiment, gas, molecule, protein, chemical, liquid, project, molecules_in_sample, sample, solid, state_of_sample
+from ..models import FTIRModel, dried_film, spectra, data_aquisition, post_processing_and_deposited_spectra, experimental_conditions, project_has_experiment, exp_has_publication, experiment, gas, molecule, protein, chemical, liquid, project, molecules_in_sample, sample, solid, state_of_sample
 
 
 # regular expression used to find WikiWords
@@ -109,7 +109,7 @@ def experimentForm(request):
                 page = experimental_conditions(experiment_ID=experiment_id, **experimental_cond)
                 request.dbsession.add(page)
                 data_aq = pstruct['data_aquisition_Schema']
-                page = data_aquisition(**data_aq)
+                page = data_aquisition(**data_aq, experiment_ID=experiment_id)
                 request.dbsession.add(page)
                 #experiment_id = request.dbsession.query(experiment).filter_by(experiment_description=experiment_description).first()
                 
@@ -173,7 +173,7 @@ def experimentForm2(request):
                 page = experimental_conditions(experiment_ID=experiment_id, **experimental_cond)
                 request.dbsession.add(page)
                 data_aq = pstruct['data_aquisition_Schema']
-                page = data_aquisition(**data_aq)
+                page = data_aquisition(**data_aq, experiment_ID=experiment_id)
                 request.dbsession.add(page)
                 #experiment_id = request.dbsession.query(experiment).filter_by(experiment_description=experiment_description).first()
                 
@@ -208,10 +208,44 @@ the child/parent relationship is created"""
     #search = request.params['body']
     searchdb = request.dbsession.query(experiment).filter_by(experiment_ID=search).all()
     dic = {}
-    #return the dictionary of all values from the row
     for u in searchdb:
             new = u.__dict__
             dic.update( new )
+    search2 = request.dbsession.query(experimental_conditions).filter_by(experiment_ID=search).all()
+    dic2 = {}
+    for u in search2:
+        new = u.__dict__
+        dic2.update( new )
+    search3 = request.dbsession.query(data_aquisition).filter_by(experiment_ID=search).all()
+    dic3 = {}
+    for u in search3:
+        new = u.__dict__
+        dic3.update( new )
+    search4 = request.dbsession.query(spectra.spectra_ID).filter_by(experiment_ID=search).all()
+    spec = {}
+    #dic of related spectra
+    for u in search4:
+        num = u[0]
+        search = request.dbsession.query(post_processing_and_deposited_spectra.final_published_spectrum).filter_by(spectra_ID=num).first()
+        spec[(num)] = search[0]
+    #dic of related spectra 'final published file name to download from experiment page'
+    dic4 = {}
+  
+    print(spec)
+    print('here')
+    import random
+    for k,v in spec.items():
+        colory  = '#' + ("%06x" % random.randint(0, 0xFFFFFF))
+
+        jcamp_dict =  JCAMP_reader(pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/infrared_spectra/' + spec[k]))
+        print(k)
+        plt.plot(jcamp_dict['x'], jcamp_dict['y'], label='filename', color=colory)
+        plt.xlabel(jcamp_dict['xunits'])
+        plt.ylabel(jcamp_dict['yunits'])
+    plt.savefig(pathlib.PureWindowsPath('C:/ftirdb/ftirdb/static/experiment.png'))
+     
+                                                                                               
+    
     if 'form.submitted' in request.params:       
         if request.params['form.submitted'] == 'spectrometer':
             #retrieve experiment ID and send to spectrometer page
@@ -226,20 +260,7 @@ the child/parent relationship is created"""
         #return HTTPFound(location=next_url)
         
     else:
-        return {'experimentPage': dic }
-    """       
-    else:
-        search = request.matchdict['experiment']
-    #search = request.params['body']
-        searchdb = request.dbsession.query(experiment).filter_by(experiment_ID=search).all()
-        dic = {}
-    #return the dictionary of all values from the row
-        for u in searchdb:
-            new = u.__dict__
-            dic.update( new )
-    
-    #need to work on display of this """
-        
+        return {'experiment': dic,'spectra':spec,'conditions':dic2,'data_aquisition':dic3, 'dic4':dic4 }
     
 
             

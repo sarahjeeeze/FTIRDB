@@ -135,65 +135,97 @@ the child/parent relationship is created"""
     else:
         search = request.matchdict['pagename']
     #return project related to ID 
-        try:
-            searchdb = request.dbsession.query(project).filter_by(project_ID=search).all()
-            dic = {}
-            for u in searchdb:
-                new = u.__dict__
-                dic.update( new )
-            return(dic)
         
-            searchexp = request.dbsession.query(experiment).filter_by(project_ID=search).all()
+        searchdb = request.dbsession.query(project).filter_by(project_ID=search).all()
+        dic = {}
+        for u in searchdb:
+            new = u.__dict__
+            dic.update( new )
         
-            expdic = {}
         
-            for u in searchexp:
-                new = u.__dict__
-                expdic.update( new )
-            return(expdic)
+        searchexp = request.dbsession.query(experiment).filter_by(project_ID=search).all()
+        
+        expdic = {}
+        
+        for u in searchexp:
+            new = u.__dict__
+            expdic.update( new )
       
     #return samples related to ID in a dictionary
 
        
-            samples = {}
+        samples = {}
             
-            search = request.dbsession.query(sample).filter_by(project_ID=search).all()
-            for u in search:
-                new = u.__dict__
-                samples.update( new )
-            return(samples)
-                
+        search2 = request.dbsession.query(sample.sample_ID).filter_by(project_ID=search).all()
+        
+        for u in search2:
+            num = u[0]
+            samples[ 'sample' + str(num)] = num
+           
+        
         
     #return spectra related to ID in a dictionary
         #need to return spectra ID and use for getting data from ppd
+    # return experiment data
+        exp_ID = request.dbsession.query(experiment.experiment_ID).filter_by(project_ID=search).first()
         
-            searchexp2 = request.dbsession.query(experiment).filter_by(project_ID=search).first()
-            exp_ID = searchexp2.experiment_ID
-            search = request.dbsession.query(spectra).filter_by(experiment_ID=exp_ID).first()
-            ppd_ID = search.spectra_ID
-            search2 = request.dbsession.query(post_processing_and_deposited_spectra).filter_by(spectra_ID=ppd_ID).all()
-            depodic = {}
-            for u in search2:
-                new = u.__dict__
-                depodic.update( new )
-            return(depodic)
+
+        searchexp2 = request.dbsession.query(experiment.experiment_ID).filter_by(project_ID=search).all()
+        exp_ID = exp_ID[0]
+        print('here')
+   
+        print(searchexp2)
+        exper = {}
+    
+        # just return related experiment ID's
+        for u in searchexp2:
+            num = u[0]
+            exper[ 'experiment' + str(num)] = num
+           
+       
+    #return spectra detail
+        spectradic = {}
+        search = request.dbsession.query(spectra).filter_by(experiment_ID=exp_ID).all()
+        for u in search:
+            new = u.__dict__
+            spectradic.update( new )
+        
+        also = request.dbsession.query(spectra.spectra_ID).filter_by(experiment_ID=exp_ID).first()
+        print('help')
+        what = also[0]
+        # need to fix this 
+        if what > 7:
+            
+            ppd_ID = what
+            
+        else:
+            ppd_ID = 1 
+            
+        print(ppd_ID) 
+        #for some reason the spectra_ID in ppd are all 1
+        
+        search2 = request.dbsession.query(post_processing_and_deposited_spectra).filter_by(spectra_ID=ppd_ID).all()
+        depodic = {}
+        for u in search2: 
+            new = u.__dict__
+            depodic.update( new )
+        print(depodic)
         
     # spectrometer information
       
-            spectrodic = {}
-            search = request.dbsesesion.query(spectrometer).filter_by(experiment_ID=exp_ID).first()
-            for u in search:
-                new = u.__dict__
-                spectrodic.update( new )
-            return(spectrodic)
-        except:
-            pass
+        spectrodic = {}
+        search = request.dbsession.query(spectrometer).filter_by(experiment_ID=exp_ID).all()
+        for u in search:
+            new = u.__dict__
+            spectrodic.update( new )
+        
+        
             
        
      
 
         
-        """spec_ID = 1 
+        """spec_ID = spec
         ppd = request.dbsession.query(post_processing_and_deposited_spectra).filter_by(spectra_ID=spec_ID).all()
         depodic = {}
         for u in ppd:
@@ -229,13 +261,13 @@ the child/parent relationship is created"""
         plt.xlabel(jcamp_dict['xunits'])
         plt.ylabel(jcamp_dict['yunits'])
         plt.savefig('C:/ftirdb/ftirdb/static/fig3.png', transparent=True)
-        jcampname1 ='ftirdb:data/infrared_spectra/'+ depodic['sample_power_spectrum']
-        jcampname2 ='ftirdb:data/infrared_spectra/'+ depodic['background_power_spectrum']
-        jcampname3 ='ftirdb:data/infrared_spectra/'+ depodic['initial_result_spectrum']
+        jcampname1 ="request.static_url('ftirdb:static/data/"+ depodic['sample_power_spectrum'] 
+        jcampname2 ='ftirdb:static/infrared_spectra/'+ depodic['background_power_spectrum']
+        jcampname3 ='ftirdb:static/infrared_spectra/'+ depodic['initial_result_spectrum']
         
      
     #need to work on display of this 
-        return {'projectForm': dic , 'expdic':expdic,'spectrodic':spectrodic, 'depodic':depodic, 'spectradic':spectrodic, 'sample_power_spectrum': 'ftirdb:static/fig.png',
+        return {'dic': dic , 'expdic':expdic,'exper':exper,'samples':samples,'spectrodic':spectrodic, 'depodic':depodic, 'spectradic':spectradic,'spectrodic':spectrodic, 'sample_power_spectrum': 'ftirdb:static/fig.png',
                 'background_power_spectrum': 'ftirdb:static/fig2.png',
                 'initial_result_spectrum': 'ftirdb:static/fig3.png', 'filename':jcampname1,'filename2':jcampname2,'filename3':jcampname3}
     

@@ -25,22 +25,25 @@
 
 <div><p>{{ spectraPage | safe}}</p></div>
 
-<a href="{{request.static_url('ftirdb:static/fig.png') }}" download>
+<a href="{{request.static_url('ftirdb:static/data/1-butene.jdx') }}" download>
   <img src="{{request.static_url('ftirdb:static/fig.png') }}" id="picture" width=600px>
 </a>
-<div><p>{{ deop | safe}}</p></div>
-
-
 
 
 
 <form action="" id="animals">
-<input type="radio" id="onegraph" name="animal" value="red" onClick="changeSrc()">one<br>
-<input type="radio" id="twographs" name="animal" value="blue" onClick="changeSrc()">two<br>
-<input type="radio" id="threegraphs" name="animal" value="blue" onClick="changeSrc()">two<br>
-    </form>
-<img src="{{request.static_url('ftirdb:static/fig.png') }}" id="picture" width=600px>
+<input type="radio" id="onegraph" name="animal" value="red" onClick="changeSrc()">Sample power Spectrum 
+<a href="http://localhost:6543/static/data/{{ filename | safe}}" download > download  </a> <br>
+<input type="radio" id="twographs" name="animal" value="blue" onClick="changeSrc()">Background power spectrum
+<a href="http://localhost:6543/static/data/{{ filename2 | safe}}" download > Download  </a></a> <br>
+<input type="radio" id="threegraphs" name="animal" value="blue" onClick="changeSrc()">Initial result spectrum
+<a href="http://localhost:6543/static/data/{{ filename3 | safe}}" download > Download  </a></a> <br>
+<input type="radio" id="fourgraphs" name="animal" value="red" onClick="changeSrc()">Final published spectrum
+<a href="http://localhost:6543/static/data/{{ filename4 | safe}}" download > download  </a> <br>
 
+    </form>
+
+<div><p>{{ deop | safe}}</p></div>
 <div style="text-align:center;margin-top:40px;">
   <span class="step"></span>
   <span class="step"></span>
@@ -51,18 +54,4 @@
 
 
 
-<p>
-<a href="{{ edit_url }}">
-    Edit this page
-</a>
-</p>
-<p>
-    Viewing <strong></strong>, created by <strong></strong>.
-</p>
-
-
-
-<p>You can return to the
-<a href="{{request.route_url('view_page', pagename='FrontPage')}}">FrontPage</a>.
-</p>
 {% endblock content %}

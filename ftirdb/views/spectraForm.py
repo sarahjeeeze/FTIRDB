@@ -22,7 +22,7 @@ Contains functions required for viewing graphs based on jcamp files
 """
 from pyramid.compat import escape
 import shutil
-
+from sqlalchemy import or_
 import re
 from docutils.core import publish_parts
 import matplotlib.pyplot as plt
@@ -99,6 +99,10 @@ def spectraForm(request):
                 deform.FileData(),
                 widget=deform.widget.FileUploadWidget(tmpstore)
                 )
+        final_spectrum = colander.SchemaNode(
+                deform.FileData(),
+                widget=deform.widget.FileUploadWidget(tmpstore)
+                )
         setup_schema(None,post_processing_and_deposited_spectra)
         ppSchema =post_processing_and_deposited_spectra.__colanderalchemy__
         upload = colander.SchemaNode(
@@ -131,8 +135,9 @@ def spectraForm(request):
                 myfile = pstruct['sample_power_spectrum']['upload']
                 background = pstruct['background_power_spectrum']['upload']
                 init = pstruct['initial_result_spectrum']['upload']
+                final = pstruct['final_spectrum']['upload']
                 #using pure path as coding on windows and putting on to a linux server
-                permanent_store = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/')
+                permanent_store = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/static/data')
                 permanent_file = open(os.path.join(permanent_store,
                                         myfile.filename.lstrip(os.sep)),
                                         'wb')
@@ -151,6 +156,12 @@ def spectraForm(request):
                 shutil.copyfileobj(init.file, permanent_file)
                 init.file.close()
                 permanent_file.close()
+                permanent_file = open(os.path.join(permanent_store,
+                                        final.filename.lstrip(os.sep)),
+                                        'wb')
+                shutil.copyfileobj(final.file, permanent_file)
+                final.file.close()
+                permanent_file.close()
                 print(myfile.filename)
                 #break through adding schema to db without having to manually enter each one
                 ok = pstruct['spectraSchema']
@@ -164,11 +175,14 @@ def spectraForm(request):
                 sample_power_spectrum= myfile.filename
                 background_power_spectrum= background.filename
                 initial = init.filename
-                page = post_processing_and_deposited_spectra(sample_power_spectrum=sample_power_spectrum, background_power_spectrum=background_power_spectrum,initial_result_spectrum=initial,**pok)
-                request.dbsession.add(page)
-                #in future change this so it just querys spectra and takes the first option
+                final = final.filename
                 searchdb = request.dbsession.query(spectra).order_by(spectra.spectra_ID.desc()).first()
                 spectra_ID = searchdb.spectra_ID
+                print(spectra_ID)
+                page = post_processing_and_deposited_spectra(spectra_ID=spectra_ID,final_published_spectrum=final,sample_power_spectrum=sample_power_spectrum, background_power_spectrum=background_power_spectrum,initial_result_spectrum=initial,**pok)
+                request.dbsession.add(page)
+                #in future change this so it just querys spectra and takes the first option
+              
 
 
                 
@@ -216,39 +230,71 @@ def spectraPage(request):
             new = u.__dict__
             spectradic.update( new )
         """
-        spec_ID = 1 
-        ppd = request.dbsession.query(post_processing_and_deposited_spectra).filter_by(spectra_ID=spec_ID).all()
+        print(search) 
+        ppd = request.dbsession.query(post_processing_and_deposited_spectra).filter_by(spectra_ID=search).all()
+
         depodic = {}
         for u in ppd:
             new = u.__dict__
             depodic.update( new )
+
+        print(depodic)
+        print('here')
             
         plt.figure(1)
+        plt.tight_layout()
+
+
         filename = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['sample_power_spectrum'])
+        
         jcamp_dict = JCAMP_reader(filename)
         plt.plot(jcamp_dict['x'], jcamp_dict['y'], label='filename', alpha = 0.7, color='blue')
         plt.xlabel(jcamp_dict['xunits'])
         plt.ylabel(jcamp_dict['yunits'])
-        plt.savefig('C:/ftirdb/ftirdb/static/fig.png', transparent=True)
+        plt.savefig(pathlib.PureWindowsPath('C:/ftirdb/ftirdb/static/fig.png'), bbox_inches="tight")
         plt.figure(2)
-        filename2 = 'C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['background_power_spectrum']
+        plt.tight_layout()
+
+        filename2 = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['background_power_spectrum'])
         jcamp_dict2 = JCAMP_reader(filename2)
+       
+       
+        print(jcamp_dict2['x'])
+        print(jcamp_dict2['xunits'])
         plt.plot(jcamp_dict2['x'], jcamp_dict2['y'], label='filename', alpha = 0.7, color='green')
-        plt.xlabel(jcamp_dict['xunits'])
-        plt.ylabel(jcamp_dict['yunits'])
-        plt.savefig('C:/ftirdb/ftirdb/static/fig2.png', transparent=True)
+        plt.xlabel(jcamp_dict2['xunits'])
+        plt.ylabel(jcamp_dict2['yunits'])
+
+        plt.savefig(pathlib.PureWindowsPath('C:/ftirdb/ftirdb/static/fig2.png'), bbox_inches="tight")
         plt.figure(3)
-        filename3 = 'C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['initial_result_spectrum']
+        plt.tight_layout()
+
+        filename3 = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['initial_result_spectrum'])
         jcamp_dict3 = JCAMP_reader(filename3)
-        plt.plot(jcamp_dict3['x'], jcamp_dict3['y'], label='filename', alpha = 0.7, color='green')
-        plt.xlabel(jcamp_dict['xunits'])
-        plt.ylabel(jcamp_dict['yunits'])
-        plt.savefig('C:/ftirdb/ftirdb/static/fig3.png', transparent=True)
+        plt.plot(jcamp_dict3['x'], jcamp_dict3['y'], label='filename', alpha = 0.7, color='red')
+        plt.xlabel(jcamp_dict3['xunits'])
+        plt.ylabel(jcamp_dict3['yunits'])
+        plt.savefig(pathlib.PureWindowsPath('C:/ftirdb/ftirdb/static/fig3.png'), bbox_inches="tight")
+        plt.figure(4)
+        plt.tight_layout()
+
+        filename4 = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['final_published_spectrum'])
+        jcamp_dict4 = JCAMP_reader(filename4)
+        plt.plot(jcamp_dict3['x'], jcamp_dict3['y'], label='filename', alpha = 0.7, color='magenta')
+        plt.xlabel(jcamp_dict4['xunits'])
+        plt.ylabel(jcamp_dict4['yunits'])
+        plt.savefig(pathlib.PureWindowsPath('C:/ftirdb/ftirdb/static/fig4.png'), bbox_inches="tight")
+        #file names ready to be downloaded
+        jcampname1 = depodic['sample_power_spectrum'] 
+        jcampname2 =depodic['background_power_spectrum']
+        jcampname3 =depodic['initial_result_spectrum']
+        jcampname4 = depodic['final_published_spectrum']
+
 
     
     #need to work on display of this 
         return { 'deop':depodic, 'sample_power_spectrum': 'ftirdb:static/fig.png', 'background_power_spectrum': 'ftirdb:static/fig2.png',
-                'initial_result_spectrum': 'ftirdb:static/fig3.png'}
+                'initial_result_spectrum': 'ftirdb:static/fig3.png', 'filename':jcampname1,'filename2':jcampname2,'filename3':jcampname3,'filename4':jcampname4}
     
     
     
