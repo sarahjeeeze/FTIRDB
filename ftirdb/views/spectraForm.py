@@ -44,7 +44,9 @@ from colanderalchemy import setup_schema
 import pathlib
 from pathlib import Path
 
-
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import numpy as np
 
 from pyramid.httpexceptions import (
