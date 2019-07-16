@@ -32,7 +32,7 @@ from pyramid.scripts.common import parse_vars
 #import sql alchemy model
 
 from .. import models
-from ..models import FTIRModel, User, FTIRModel,spectra, data_aquisition, experimental_conditions, project_has_experiment, exp_has_publication, experiment, molecule, protein, chemical,dried_film, gas, liquid, project, molecules_in_sample, sample, solid, state_of_sample
+from ..models import FTIRModel, User, FTIRModel,spectra, data_aquisition,publication, experimental_conditions, project_has_experiment, exp_has_publication, experiment, molecule, protein, chemical,dried_film, gas, liquid, project, molecules_in_sample, sample, solid, state_of_sample
 from ..models import (
     get_engine,
     get_session_factory,

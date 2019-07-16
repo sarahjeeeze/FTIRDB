@@ -252,13 +252,13 @@ def spectraPage(request):
         plt.xlabel(jcamp_dict['xunits'])
         plt.ylabel(jcamp_dict['yunits'])
         plt.savefig(pathlib.PureWindowsPath('C:/ftirdb/ftirdb/static/fig.png'), bbox_inches="tight")
+        
         plt.figure(2)
         plt.tight_layout()
-
         filename2 = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['background_power_spectrum'])
         jcamp_dict2 = JCAMP_reader(filename2)
        
-       
+
         print(jcamp_dict2['x'])
         print(jcamp_dict2['xunits'])
         plt.plot(jcamp_dict2['x'], jcamp_dict2['y'], label='filename', alpha = 0.7, color='green')

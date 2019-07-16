@@ -28,6 +28,25 @@ relating to what functions.
 from pyramid.compat import escape
 import re
 from docutils.core import publish_parts
+import matplotlib.pyplot as plt
+from jcamp import JCAMP_reader, JCAMP_calc_xsec
+import colander 
+import deform
+import peppercorn
+import requests
+from deform import Form, FileData
+import os
+#imppot sqlalchemy 
+from sqlalchemy import event
+from sqlalchemy import *
+from sqlalchemy.databases import mysql
+from sqlalchemy.orm import relation, backref, synonym
+from sqlalchemy.orm.exc import NoResultFound
+import colanderalchemy
+from colanderalchemy import setup_schema
+from pyramid.compat import escape
+import re
+from docutils.core import publish_parts
 
 from pyramid.httpexceptions import (
     HTTPForbidden,
@@ -43,7 +62,7 @@ import colander
 import deform
 from deform import widget
 #import models
-from ..models import FTIRModel, User, Spectra_detail, Graph_experiment, spectra, experiment, project, spectrometer, molecule, sample
+from ..models import FTIRModel, User,  spectra, experiment, project, spectrometer, molecule, sample
 
 @view_config(route_name='view_wiki')
 def view_wiki(request):
@@ -66,40 +85,13 @@ def view_searchdb(request):
     Jinja 2 will render these in to html"""
     
     if 'form.submitted' in request.params:
-        #need to move this all to the results page 
+        #use a look up to find search term
+
+        
         search = request.params['body']
-        name = request.params['table']
-        haha = eval(name).__table__.columns.keys()
-        print('here')
-        print (haha)
-        dic = {}
-        count = 0 
-        for i in haha:
-          try:
-            ok = eval(i)
-            print(ok)
-            annoy = eval(name)
-            searchdb = request.dbsession.query(annoy).filter_by(ok=search).all()
-            print('worked')
-            print(i)
-            if searchdb is not None:
-                for item in searchdb:
-                    count += 1
-                    new = u.__dict__
-                    dic.update( new )
-                    
-          except:
-              print(name)
-              print(i)
-              continue
-        print(dic)
-        
-        
-        #return {"dic":dic}
-        #dic = {str(k): v for k, v in dic.items()}
         
         #need to work on getting it to return dictionary of all results
-        next_url = request.route_url('results', results=search)
+        next_url = request.route_url('results', results=search, table = request.params['table'])
         
         return HTTPFound(location=next_url)
         

@@ -41,9 +41,9 @@
 <div><p>{{ expdic | safe}}</p></div>
 <div><p>{{ spectrodic | safe}}</p></div>
 <div><p>{{ depodic | safe}}</p></div>
-<div><p>{{ spectradic | safe}}</p></div>
-<div><p>{{ exper| safe}}</p></div>
-<div><p>{{ samples| safe}}</p></div>
+
+
+
 
 
  <div class="col-md-12">
@@ -52,6 +52,11 @@ Project data
 <li>{{ key | safe }} : {{ dic[key] | safe }}</li>
 
 {% endfor %}
+
+<div><p>Publication information
+
+{{ publication | safe}}</p></div>
+
 Related experiments
 <div> {% for key,value in exper.items() %}
 <li><a href="http://localhost:6543/experimentPage/{{ value | safe}}">{{ key }}</li></a>

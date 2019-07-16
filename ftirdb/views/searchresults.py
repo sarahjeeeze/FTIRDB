@@ -1,4 +1,3 @@
-#experiment - dont include in final project
 
 from pyramid.compat import escape
 import re
@@ -14,31 +13,68 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 from pyramid.response import Response
 from sqlalchemy import or_
-from ..models import FTIRModel, User, spectra, post_processing_and_deposited_spectra , project, experiment
+from ..models import FTIRModel, User, spectra, post_processing_and_deposited_spectra , project, experiment, FTIRModel, spectra, experiment, project, spectrometer, molecule, sample
 
-# regular expression used to find WikiWords
-wikiwords = re.compile(r"\b([A-Z]\w+[A-Z]+\w+)")
+
 
 
 @view_config(route_name='results', renderer='../templates/results.jinja2')
 def view_results(request):
     
-    search = request.matchdict['results']
-    #search = request.params['body']
-    searchdb = request.dbsession.query(project,spectra,experiment).filter(or_(project.descriptive_name==search),(experiment.experiment_ID==search)).all()
-    count = 0
-    print(searchdb)
-    dic = {}
-    for item in searchdb:
-        count += 1
-        dic[item] = count
+        tables = {
+        "experiment": experiment,
+        "project": project,
+        "sample": sample,
+        "molecule": molecule,
+        "spectra" : spectra,
+        "spectrometer": spectrometer
+        }
 
-    return {"dic":dic}
-    #dict =	{
-      #"apple": "green",
-      #"banana": "yellow",
-      #"cherry": "red"
-        #}
-    #return {"dic":dict}
-    #return dic
-#../templates/results.jinja2
+        tables2 = {
+        "experiment": experiment.experiment_ID,
+        "project": project.project_ID,
+        "sample": sample.sample_ID,
+        "molecule": molecule.molecule_ID,
+        "spectra" : spectra.spectra_ID,
+        "spectrometer": spectrometer.spectrometer_ID
+        }
+        
+        search = request.matchdict['results']
+        #table to be searched
+        model = tables[request.matchdict['table']]
+        model2 = tables2[request.matchdict['table']]
+        
+        print(model2)
+        results = {}
+        #could easily change this to like instead of == 
+        for col in model.__table__.columns:
+                try:
+
+                    if isinstance(col.type, String):
+                        searchdb = request.dbsession.query(model).filter(col == search).all()                                     
+                        results[col.key] = searchdb
+
+        
+          
+            
+        
+                    
+                except Exception as e:
+              
+                      print(f"unhandled error:{e}")
+                      continue
+        
+        dic3 = {}
+        
+        for k,v in results.items():
+            for i in v: 
+                dic3['output'+str(i[0])] = (i[0])
+         
+      
+        
+        ok = request.matchdict['table'] + 'Page'
+        print(ok)
+   
+
+        return {"dic":dic3, "table":ok}
+

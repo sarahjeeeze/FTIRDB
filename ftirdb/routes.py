@@ -29,7 +29,7 @@ from pyramid.security import (
 #******************************************
 
 # import the models 
-from .models import FTIRModel, dried_film, gas, data_aquisition, experimental_conditions,spectrometer, project_has_experiment, exp_has_publication, experiment, liquid, project, molecules_in_sample, sample, solid, state_of_sample, molecule, chemical, protein
+from .models import FTIRModel, dried_film, gas, publication, data_aquisition, experimental_conditions,spectrometer, project_has_experiment, exp_has_publication, experiment, liquid, project, molecules_in_sample, sample, solid, state_of_sample, molecule, chemical, protein
 from .models.FTIRModel import spectra
 
 def includeme(config):
@@ -54,7 +54,7 @@ def includeme(config):
     config.add_route('spectraForm','/spectraForm')
     config.add_route('spectraPage','/spectraPage/{spectra_ID}')
     
-    config.add_route('results','/results/{results}')
+    config.add_route('results','/results/{results}/{table}')
     config.add_route('graph','/graph')
     config.add_route('about', '/about')
    # config.add_route('jcampupload', '/jcampupload')

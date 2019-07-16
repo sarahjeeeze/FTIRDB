@@ -32,7 +32,6 @@ import numpy
 import requests
 from deform import Form, FileData
 import os
-#imppot sqlalchemy 
 from sqlalchemy import event
 from sqlalchemy import *
 from sqlalchemy.databases import mysql
@@ -58,41 +57,56 @@ import deform
 import colander
 from deform import widget
 
-from ..models import project, experiment, spectrometer, post_processing_and_deposited_spectra, spectra, sample
-
-# regular expression used to find WikiWords
+from ..models import project, experiment, spectrometer, post_processing_and_deposited_spectra, spectra, sample, publication
 
 
-
+#view for the project form, including publication form
 @view_config(route_name='projectform', renderer='../templates/projectform.jinja2')
 def projectform(request):
     
     """ project form page """
-    #if you dont want schema name to show then make it in to a class
-    setup_schema(None,project)
-    projectSchema=project.__colanderalchemy__
-
+    #create the schema using colander alchemy
+    class All(colander.MappingSchema):
+        setup_schema(None,project)
+        projectSchema=project.__colanderalchemy__
+        setup_schema(None,publication)
+        publicationSchema=publication.__colanderalchemy__
+        
 
     
-  
-    form = deform.Form(projectSchema,buttons=('submit',))
+    # create the form using deform
+    form = deform.Form(All(),buttons=('submit',))
         
     
     if 'submit' in request.POST:
-        #map columns explicitly - see another form for automatic mapping example
-        controls = request.POST.items()
-        descriptive_name = request.params['descriptive_name']
-        related_experiments_ID = request.params['related_experiments_ID']
-        page = project(descriptive_name=descriptive_name,related_experiments_ID=related_experiments_ID)
         
+        #retreive results and deserialize using peppercorn
+        controls = request.POST.items()
+        pstruct = peppercorn.parse(controls)
+
+     
+
 
         try:
+                # call validate
                 appstruct = form.validate(controls)
+
+                #if no exceptions then add data to databank - pstruct must come after validation for error form to render
+                descriptive_name = request.params['descriptive_name']
+                related_experiments_ID = request.params['related_experiments_ID']
+                print(pstruct)
+                items = pstruct['publicationSchema']
                
-                #call validate
+                page = project(descriptive_name=descriptive_name,related_experiments_ID=related_experiments_ID)
+
+                
                 request.dbsession.add(page)
-                project_id = request.dbsession.query(project).filter_by(descriptive_name=descriptive_name).first()
+                
+                project_id = request.dbsession.query(project).order_by(project.project_ID.desc()).first()
                 project_id = project_id.project_ID
+                page = publication(experiment_ID=project_id,**items)
+                request.dbsession.add(page)
+                #return project page 
                 next_url = request.route_url('projectPage', pagename=project_id)
                 return HTTPFound(location=next_url)
              
@@ -103,6 +117,7 @@ def projectform(request):
         
     
     else:
+        #render the form
         projectForm = form.render()
         return{'projectForm':projectForm}
     
@@ -111,8 +126,7 @@ def projectform(request):
 def projectPage(request):
 
     """This page takes a project with project_ID in the URL and returns a page with a dictionary of
-all the values, it also contains buttons for adding samples and experiments. When page is linked from here
-the child/parent relationship is created"""
+all the values for the project, associated experiments and publication data, it also contains buttons for adding samples and experiments."""
 
     if 'submitted' in request.params:
         
@@ -128,7 +142,6 @@ the child/parent relationship is created"""
             next_url = request.route_url('experimentForm2',project_ID=search)
             return HTTPFound(location=next_url)
             
-        #return HTTPFound(location=next_url)
         
         
         
@@ -146,7 +159,7 @@ the child/parent relationship is created"""
         searchexp = request.dbsession.query(experiment).filter_by(project_ID=search).all()
         
         expdic = {}
-        
+        #return related experiments as a dictionary
         for u in searchexp:
             new = u.__dict__
             expdic.update( new )
@@ -169,9 +182,11 @@ the child/parent relationship is created"""
     # return experiment data
         exp_ID = request.dbsession.query(experiment.experiment_ID).filter_by(project_ID=search).first()
         
-
-        searchexp2 = request.dbsession.query(experiment.experiment_ID).filter_by(project_ID=search).all()
-        exp_ID = exp_ID[0]
+        try:
+            searchexp2 = request.dbsession.query(experiment.experiment_ID).filter_by(project_ID=search).all()
+            exp_ID = exp_ID[0]
+        except:
+            exp_ID = 0
         print('here')
    
         print(searchexp2)
@@ -190,18 +205,16 @@ the child/parent relationship is created"""
             new = u.__dict__
             spectradic.update( new )
         
-        also = request.dbsession.query(spectra.spectra_ID).filter_by(experiment_ID=exp_ID).first()
-        print('help')
-        what = also[0]
+        try:
+            also = request.dbsession.query(spectra.spectra_ID).filter_by(experiment_ID=exp_ID).first()
+            ppd_ID = also[0]
+       
+        except:
+            ppd_ID = 0
+            
         # need to fix this 
-        if what > 7:
-            
-            ppd_ID = what
-            
-        else:
-            ppd_ID = 1 
-            
-        print(ppd_ID) 
+      
+     
         #for some reason the spectra_ID in ppd are all 1
         
         search2 = request.dbsession.query(post_processing_and_deposited_spectra).filter_by(spectra_ID=ppd_ID).all()
@@ -209,7 +222,7 @@ the child/parent relationship is created"""
         for u in search2: 
             new = u.__dict__
             depodic.update( new )
-        print(depodic)
+      
         
     # spectrometer information
       
@@ -220,56 +233,21 @@ the child/parent relationship is created"""
             spectrodic.update( new )
         
         
-            
+        publicationdic = {}
+        search = request.matchdict['pagename']
+        print('here')
+        print(search)
+        search = request.dbsession.query(publication).filter_by(experiment_ID=search).all()
+        for u in search:
+            new = u.__dict__
+            publicationdic.update( new )
+        
        
      
 
         
-        """spec_ID = spec
-        ppd = request.dbsession.query(post_processing_and_deposited_spectra).filter_by(spectra_ID=spec_ID).all()
-        depodic = {}
-        for u in ppd:
-            new = u.__dict__
-            depodic.update( new )"""
-        #code for outputing all 3 graphs - here you need to add downloadable, and use pathlib      
-        plt.figure(1)
-        filename = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['sample_power_spectrum'])
-        
-        jcamp_dict = JCAMP_reader(filename)
-        plt.plot(jcamp_dict['x'], jcamp_dict['y'], label='filename', alpha = 0.7, color='blue')
-        plt.xlabel(jcamp_dict['xunits'])
-        plt.ylabel(jcamp_dict['yunits'])
-        plt.savefig('C:/ftirdb/ftirdb/static/fig.png', transparent=True)
-        plt.figure(2)
-        filename2 = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['background_power_spectrum'])
-        jcamp_dict2 = JCAMP_reader(filename2)
-       
-        logged = numpy.log10(jcamp_dict2['x'])
-       
-        print(jcamp_dict2['x'])
-        print(logged)
-        print(jcamp_dict2['xunits'])
-        JCAMP_calc_xsec(jcamp_dict, skip_nonquant=False, debug=False)
-        plt.plot(jcamp_dict['wavelengths'], jcamp_dict['xsec'], label='filename', alpha = 0.7, color='green')
-        plt.xlabel(jcamp_dict['xunits'])
-        plt.ylabel(jcamp_dict['yunits'])
-        plt.savefig('C:/ftirdb/ftirdb/static/fig2.png', transparent=True)
-        plt.figure(3)
-        filename3 = pathlib.PureWindowsPath('C:/ftirdb/ftirdb/data/infrared_spectra/' + depodic['initial_result_spectrum'])
-        jcamp_dict3 = JCAMP_reader(filename3)
-        plt.plot(jcamp_dict3['x'], jcamp_dict3['y'], label='filename', alpha = 0.7, color='red')
-        plt.xlabel(jcamp_dict['xunits'])
-        plt.ylabel(jcamp_dict['yunits'])
-        plt.savefig('C:/ftirdb/ftirdb/static/fig3.png', transparent=True)
-        jcampname1 ="request.static_url('ftirdb:static/data/"+ depodic['sample_power_spectrum'] 
-        jcampname2 ='ftirdb:static/infrared_spectra/'+ depodic['background_power_spectrum']
-        jcampname3 ='ftirdb:static/infrared_spectra/'+ depodic['initial_result_spectrum']
-        
-     
-    #need to work on display of this 
-        return {'dic': dic , 'expdic':expdic,'exper':exper,'samples':samples,'spectrodic':spectrodic, 'depodic':depodic, 'spectradic':spectradic,'spectrodic':spectrodic, 'sample_power_spectrum': 'ftirdb:static/fig.png',
-                'background_power_spectrum': 'ftirdb:static/fig2.png',
-                'initial_result_spectrum': 'ftirdb:static/fig3.png', 'filename':jcampname1,'filename2':jcampname2,'filename3':jcampname3}
+
+        return {'dic': dic , 'expdic':expdic,'exper':exper,'samples':samples, 'publication':publicationdic}
     
     
     

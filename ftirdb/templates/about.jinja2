@@ -4,19 +4,17 @@
 {% block content %}
 <p>{{ content|safe }}</p>
 
-<p>
-<a href="{{request.route_url('about', pagename='about')}}">Home page</a>
-</p>
+
 <p>
 <a href="{{ edit_url }}">
     
 </a>
 </p>
-<p><font size="5">
-    Welcome to the infrared spectra databank <strong></strong><strong> </strong>
+<p><font size="5" font= "georgia">
+    Welcome to the Biomolecule infrared spectra databank <strong></strong><strong> </strong>
 </p>
 <p>
-Please use the navigation pain on the right
+Please use navigation pain above to login, create an account, add data to the databank or search for spectra
 </p>
 <p>Databank is still under development <br></p>
 {% endblock content %}

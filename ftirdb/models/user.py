@@ -36,6 +36,10 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(32), nullable=False, unique=True)
     role = Column(Text, nullable=False)
+    institution = Column(String(45))
+    country = Column(String(45))
+    principle_investigator = Column(String(45))
+    
 
     password_hash = Column(Text)
 
@@ -50,3 +54,5 @@ class User(Base):
             expected_hash = self.password_hash.encode('utf8')
             return bcrypt.checkpw(pw.encode('utf8'), expected_hash)
         return False
+    
+
